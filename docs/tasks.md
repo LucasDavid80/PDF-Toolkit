@@ -5,38 +5,38 @@
 
 ## Fase 0 — Fundação do projeto
 
-- [x] 0.1 `flutter create --platforms windows,macos,linux pdf_toolkit`
-- [x] 0.2 Criar estrutura de pastas definida no Plan (`features/`, `shared/`)
-- [x] 0.3 Adicionar dependências no `pubspec.yaml`: `file_picker`, `pdf_combiner`, `path`
-- [x] 0.4 Rodar `flutter pub get` e validar `flutter run -d <cada-plataforma>` com o
+- [X] 0.1 `flutter create --platforms windows,macos,linux pdf_toolkit`
+- [X] 0.2 Criar estrutura de pastas definida no Plan (`features/`, `shared/`)
+- [X] 0.3 Adicionar dependências no `pubspec.yaml`: `file_picker`, `pdf_combiner`, `path`
+- [X] 0.4 Rodar `flutter pub get` e validar `flutter run -d <cada-plataforma>` com o
       app padrão (contador do Flutter) só pra confirmar que o ambiente desktop está OK
       nas 3 plataformas antes de escrever qualquer lógica
 
 ## Fase 1 — UI esqueleto (sem lógica)
 
-- [x] 1.1 Criar `app.dart` com `Scaffold` + `TabBar`/`TabBarView` com 2 abas
+- [X] 1.1 Criar `app.dart` com `Scaffold` + `TabBar`/`TabBarView` com 2 abas
       ("Imagens → PDF" e "Unir PDFs"), cada uma apontando pra uma tela vazia
-- [x] 1.2 Criar `image_to_pdf_screen.dart` com layout estático: botão "Selecionar
+- [X] 1.2 Criar `image_to_pdf_screen.dart` com layout estático: botão "Selecionar
       imagens", `ReorderableListView` vazio, botão "Converter" desabilitado
-- [x] 1.3 Criar `merge_pdf_screen.dart` com layout estático equivalente (botão
+- [X] 1.3 Criar `merge_pdf_screen.dart` com layout estático equivalente (botão
       "Selecionar PDFs", lista, botão "Unir" desabilitado)
-- [x] 1.4 Criar `shared/file_list_tile.dart` (linha: ícone + nome do arquivo + botão remover)
-- [x] 1.5 Criar `shared/result_banner.dart` (banner de sucesso/erro reutilizável)
+- [X] 1.4 Criar `shared/file_list_tile.dart` (linha: ícone + nome do arquivo + botão remover)
+- [X] 1.5 Criar `shared/result_banner.dart` (banner de sucesso/erro reutilizável)
 
 ## Fase 2 — Funcionalidade 1: Imagens → PDF
 
-- [ ] 2.1 Criar `image_to_pdf_controller.dart` com estado da lista de imagens
+- [x] 2.1 Criar `image_to_pdf_controller.dart` com estado da lista de imagens
       selecionadas (`ValueNotifier<List<String>>` ou equivalente)
-- [ ] 2.2 Conectar `file_picker.pickFiles` com filtro `png/jpg/jpeg` e `allowMultiple: true`
-- [ ] 2.3 Implementar reordenação (`onReorder` do `ReorderableListView` atualizando o
+- [x] 2.2 Conectar `file_picker.pickFiles` com filtro `png/jpg/jpeg` e `allowMultiple: true`
+- [x] 2.3 Implementar reordenação (`onReorder` do `ReorderableListView` atualizando o
       controller) e remoção de item da lista
-- [ ] 2.4 Habilitar/desabilitar botão "Converter" com base na lista estar vazia ou não
-- [ ] 2.5 Conectar `file_picker.saveFile` para escolher caminho de saída do PDF
-- [ ] 2.6 Chamar `PdfCombiner.createPDFFromMultipleImages` com a lista ordenada e o
+- [x] 2.4 Habilitar/desabilitar botão "Converter" com base na lista estar vazia ou não
+- [x] 2.5 Conectar `file_picker.saveFile` para escolher caminho de saída do PDF
+- [x] 2.6 Chamar `PdfCombiner.createPDFFromMultipleImages` com a lista ordenada e o
       caminho escolhido
-- [ ] 2.7 Tratar exceções (`PdfCombinerException`, erro de I/O) e exibir no `ResultBanner`
+- [x] 2.7 Tratar exceções (`PdfCombinerException`, erro de I/O) e exibir no `ResultBanner`
       com mensagem amigável (mapeamento em `shared/app_errors.dart`)
-- [ ] 2.8 Testar manualmente o fluxo completo nas 3 plataformas
+- [x] 2.8 Testar manualmente o fluxo completo nas 3 plataformas
 
 ## Fase 3 — Funcionalidade 2: Unir PDFs
 
