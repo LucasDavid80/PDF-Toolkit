@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:pdf_combiner/models/merge_input.dart';
 import 'package:pdf_combiner/pdf_combiner.dart';
 import '../../shared/app_errors.dart';
+import '../../shared/file_picker_wrapper.dart';
 
 class ImageToPdfController {
-  final FilePicker? _filePicker;
+  final FilePickerWrapper _filePicker;
 
-  ImageToPdfController({FilePicker? filePicker}) : _filePicker = filePicker;
-
-  FilePicker get filePicker => _filePicker ?? FilePicker.platform;
+  ImageToPdfController({FilePickerWrapper filePicker = const FilePickerWrapper()}) 
+      : _filePicker = filePicker;
 
   final ValueNotifier<List<String>> images = ValueNotifier<List<String>>([]);
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
@@ -24,7 +24,7 @@ class ImageToPdfController {
   Future<void> selectImages() async {
     clearMessages();
     try {
-      final result = await filePicker.pickFiles(
+      final result = await _filePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['png', 'jpg', 'jpeg'],
         allowMultiple: true,
@@ -82,8 +82,9 @@ class ImageToPdfController {
       return;
     }
 
+    String? outputPath;
     try {
-      final String? outputPath = await filePicker.saveFile(
+      outputPath = await _filePicker.saveFile(
         dialogTitle: 'Salvar PDF como',
         fileName: 'imagens_convertidas.pdf',
         type: FileType.custom,
@@ -106,7 +107,7 @@ class ImageToPdfController {
 
       successMessage.value = outputPath; // Usado para mostrar o local salvo
     } catch (e) {
-      errorMessage.value = AppErrors.getFriendlyMessage(e);
+      errorMessage.value = AppErrors.getFriendlyMessage(e, outputPath: outputPath);
     } finally {
       isProcessing.value = false;
     }
