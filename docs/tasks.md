@@ -14,14 +14,14 @@
 
 ## Fase 1 — UI esqueleto (sem lógica)
 
-- [ ] 1.1 Criar `app.dart` com `Scaffold` + `TabBar`/`TabBarView` com 2 abas
+- [x] 1.1 Criar `app.dart` com `Scaffold` + `TabBar`/`TabBarView` com 2 abas
       ("Imagens → PDF" e "Unir PDFs"), cada uma apontando pra uma tela vazia
-- [ ] 1.2 Criar `image_to_pdf_screen.dart` com layout estático: botão "Selecionar
+- [x] 1.2 Criar `image_to_pdf_screen.dart` com layout estático: botão "Selecionar
       imagens", `ReorderableListView` vazio, botão "Converter" desabilitado
-- [ ] 1.3 Criar `merge_pdf_screen.dart` com layout estático equivalente (botão
+- [x] 1.3 Criar `merge_pdf_screen.dart` com layout estático equivalente (botão
       "Selecionar PDFs", lista, botão "Unir" desabilitado)
-- [ ] 1.4 Criar `shared/file_list_tile.dart` (linha: ícone + nome do arquivo + botão remover)
-- [ ] 1.5 Criar `shared/result_banner.dart` (banner de sucesso/erro reutilizável)
+- [x] 1.4 Criar `shared/file_list_tile.dart` (linha: ícone + nome do arquivo + botão remover)
+- [x] 1.5 Criar `shared/result_banner.dart` (banner de sucesso/erro reutilizável)
 
 ## Fase 2 — Funcionalidade 1: Imagens → PDF
 
