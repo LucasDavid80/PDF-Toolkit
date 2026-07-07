@@ -40,14 +40,14 @@
 
 ## Fase 3 — Funcionalidade 2: Unir PDFs
 
-- [ ] 3.1 Criar `merge_pdf_controller.dart` (mesma estrutura da Fase 2, adaptada)
-- [ ] 3.2 Conectar `file_picker.pickFiles` com filtro `.pdf` e `allowMultiple: true`
-- [ ] 3.3 Implementar reordenação e remoção de item (reaproveitar `file_list_tile.dart`)
-- [ ] 3.4 Habilitar botão "Unir" somente com 2+ PDFs selecionados
-- [ ] 3.5 Conectar `file_picker.saveFile` para o caminho de saída
-- [ ] 3.6 Chamar `PdfCombiner.mergeMultiplePDFs` com a lista ordenada
-- [ ] 3.7 Tratar exceções (PDF corrompido/protegido) reaproveitando `app_errors.dart`
-- [ ] 3.8 Testar manualmente o fluxo completo nas 3 plataformas
+- [x] 3.1 Criar `merge_pdf_controller.dart` (mesma estrutura da Fase 2, adaptada)
+- [x] 3.2 Conectar `file_picker.pickFiles` com filtro `.pdf` e `allowMultiple: true`
+- [x] 3.3 Implementar reordenação e remoção de item (reaproveitar `file_list_tile.dart`)
+- [x] 3.4 Habilitar botão "Unir" somente com 2+ PDFs selecionados
+- [x] 3.5 Conectar `file_picker.saveFile` para o caminho de saída
+- [x] 3.6 Chamar `PdfCombiner.mergeMultiplePDFs` com a lista ordenada
+- [x] 3.7 Tratar exceções (PDF corrompido/protegido) reaproveitando `app_errors.dart`
+- [x] 3.8 Testar manualmente o fluxo completo nas 3 plataformas
 
 ## Fase 4 — Testes unitários
 
