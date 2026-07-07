@@ -27,11 +27,13 @@ class FixtureFilePicker extends FilePickerWrapper {
     bool allowMultiple = false,
   }) async {
     final files = selectedPaths
-        .map<PlatformFile>((p) => PlatformFile(
-              name: p.split(Platform.pathSeparator).last,
-              path: p,
-              size: 0,
-            ))
+        .map<PlatformFile>(
+          (p) => PlatformFile(
+            name: p.split(Platform.pathSeparator).last,
+            path: p,
+            size: 0,
+          ),
+        )
         .toList();
     return FilePickerResult(files);
   }
@@ -109,76 +111,104 @@ void main() {
   final corruptedFixture = '$fixturesDir${sep}corrupted.pdf';
 
   group('Testes de Integração da Interface do Usuário (UI)', () {
-
     // --- TESTES POSITIVOS ---
 
-    testWidgets('Positivo 1: Selecionar 3 imagens -> reordenar na UI -> converter com sucesso', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_pos1.pdf';
+    testWidgets(
+      'Positivo 1: Selecionar 3 imagens -> reordenar na UI -> converter com sucesso',
+      (WidgetTester tester) async {
+        final outPath = '${Directory.systemTemp.path}${sep}out_pos1.pdf';
+        final picker = FixtureFilePicker(
+          selectedPaths: ['img_a.png', 'img_b.jpg', 'img_c.jpeg'],
+          savePath: outPath,
+        );
+        final controller = ImageToPdfController(
+          filePicker: picker,
+          pdfCombiner: FakePdfCombiner(),
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
+
+        // Selecionar imagens programaticamente no controller
+        await controller.selectImages();
+        await tester.pumpAndSettle();
+
+        // Verificar se as 3 imagens aparecem na lista da UI
+        expect(find.byType(FileListTile), findsNWidgets(3));
+        expect(find.text('img_a.png'), findsOneWidget);
+        expect(find.text('img_b.jpg'), findsOneWidget);
+        expect(find.text('img_c.jpeg'), findsOneWidget);
+
+        // Simular a reordenação (mover img_a para depois de img_b)
+        controller.reorderImages(0, 2);
+        await tester.pumpAndSettle();
+
+        // Verificar nova ordem de visualização na UI (img_b deve ser o primeiro item da lista agora)
+        final firstTile = tester.widget<FileListTile>(
+          find.byType(FileListTile).first,
+        );
+        expect(firstTile.filename, 'img_b.jpg');
+
+        // Chamar conversão programaticamente
+        await controller.convert();
+        await tester.pumpAndSettle();
+
+        // Validar que o PDF foi salvo e banner de sucesso foi exibido na UI
+        expect(File(outPath).existsSync(), true);
+        expect(find.byType(ResultBanner), findsOneWidget);
+        expect(find.textContaining('PDF gerado com sucesso'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Positivo 2: Selecionar 1 única imagem -> converter -> sucesso',
+      (WidgetTester tester) async {
+        final outPath = '${Directory.systemTemp.path}${sep}out_pos2.pdf';
+        final picker = FixtureFilePicker(
+          selectedPaths: [imgFixture],
+          savePath: outPath,
+        );
+        final controller = ImageToPdfController(
+          filePicker: picker,
+          pdfCombiner: FakePdfCombiner(),
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
+
+        await controller.selectImages();
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FileListTile), findsOneWidget);
+
+        await controller.convert();
+        await tester.pumpAndSettle();
+
+        expect(File(outPath).existsSync(), true);
+        expect(find.byType(ResultBanner), findsOneWidget);
+      },
+    );
+
+    testWidgets('Positivo 3: Selecionar 2 PDFs -> unir -> sucesso', (
+      WidgetTester tester,
+    ) async {
+      final outPath = '${Directory.systemTemp.path}${sep}out_pos3.pdf';
       final picker = FixtureFilePicker(
-        selectedPaths: ['img_a.png', 'img_b.jpg', 'img_c.jpeg'],
+        selectedPaths: ['C:\\path\\doc_a.pdf', 'C:\\path\\doc_b.pdf'],
         savePath: outPath,
       );
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = MergePdfController(
+        filePicker: picker,
+        pdfCombiner: FakePdfCombiner(),
+      );
 
-      await tester.pumpWidget(MaterialApp(
-        home: ImageToPdfScreen(controller: controller),
-      ));
-      await tester.pumpAndSettle();
-
-      // Selecionar imagens programaticamente no controller
-      await controller.selectImages();
-      await tester.pumpAndSettle();
-
-      // Verificar se as 3 imagens aparecem na lista da UI
-      expect(find.byType(FileListTile), findsNWidgets(3));
-      expect(find.text('img_a.png'), findsOneWidget);
-      expect(find.text('img_b.jpg'), findsOneWidget);
-      expect(find.text('img_c.jpeg'), findsOneWidget);
-
-      // Simular a reordenação (mover img_a para depois de img_b)
-      controller.reorderImages(0, 2);
-      await tester.pumpAndSettle();
-
-      // Verificar nova ordem de visualização na UI (img_b deve ser o primeiro item da lista agora)
-      final firstTile = tester.widget<FileListTile>(find.byType(FileListTile).first);
-      expect(firstTile.filename, 'img_b.jpg');
-
-      // Chamar conversão programaticamente
-      await controller.convert();
-      await tester.pumpAndSettle();
-
-      // Validar que o PDF foi salvo e banner de sucesso foi exibido na UI
-      expect(File(outPath).existsSync(), true);
-      expect(find.byType(ResultBanner), findsOneWidget);
-      expect(find.textContaining('PDF gerado com sucesso'), findsOneWidget);
-    });
-
-    testWidgets('Positivo 2: Selecionar 1 única imagem -> converter -> sucesso', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_pos2.pdf';
-      final picker = FixtureFilePicker(selectedPaths: [imgFixture], savePath: outPath);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
-
-      await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
-
-      await controller.selectImages();
-      await tester.pumpAndSettle();
-
-      expect(find.byType(FileListTile), findsOneWidget);
-
-      await controller.convert();
-      await tester.pumpAndSettle();
-
-      expect(File(outPath).existsSync(), true);
-      expect(find.byType(ResultBanner), findsOneWidget);
-    });
-
-    testWidgets('Positivo 3: Selecionar 2 PDFs -> unir -> sucesso', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_pos3.pdf';
-      final picker = FixtureFilePicker(selectedPaths: ['C:\\path\\doc_a.pdf', 'C:\\path\\doc_b.pdf'], savePath: outPath);
-      final controller = MergePdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
-
-      await tester.pumpWidget(MaterialApp(home: MergePdfScreen(controller: controller)));
+      await tester.pumpWidget(
+        MaterialApp(home: MergePdfScreen(controller: controller)),
+      );
       await tester.pumpAndSettle();
 
       await controller.selectPdfs();
@@ -194,145 +224,219 @@ void main() {
       expect(find.textContaining('PDF unido salvo em'), findsOneWidget);
     });
 
-    testWidgets('Positivo 4: Remover um item da lista antes de confirmar -> PDF gerado apenas com restante', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_pos4.pdf';
-      final picker = FixtureFilePicker(
-        selectedPaths: ['img_a.png', 'img_b.jpg'],
-        savePath: outPath,
-      );
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+    testWidgets(
+      'Positivo 4: Remover um item da lista antes de confirmar -> PDF gerado apenas com restante',
+      (WidgetTester tester) async {
+        final outPath = '${Directory.systemTemp.path}${sep}out_pos4.pdf';
+        final picker = FixtureFilePicker(
+          selectedPaths: ['img_a.png', 'img_b.jpg'],
+          savePath: outPath,
+        );
+        final controller = ImageToPdfController(
+          filePicker: picker,
+          pdfCombiner: FakePdfCombiner(),
+        );
 
-      await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      await controller.selectImages();
-      await tester.pumpAndSettle();
+        await controller.selectImages();
+        await tester.pumpAndSettle();
 
-      expect(find.byType(FileListTile), findsNWidgets(2));
+        expect(find.byType(FileListTile), findsNWidgets(2));
 
-      // Clicar no botão remover na UI do primeiro item
-      await tester.tap(find.byIcon(Icons.delete).first);
-      await tester.pumpAndSettle();
+        // Clicar no botão remover na UI do primeiro item
+        await tester.tap(find.byIcon(Icons.delete).first);
+        await tester.pumpAndSettle();
 
-      // Apenas img_b.jpg deve restar na UI
-      expect(find.byType(FileListTile), findsOneWidget);
-      expect(find.text('img_b.jpg'), findsOneWidget);
-      expect(find.text('img_a.png'), findsNothing);
+        // Apenas img_b.jpg deve restar na UI
+        expect(find.byType(FileListTile), findsOneWidget);
+        expect(find.text('img_b.jpg'), findsOneWidget);
+        expect(find.text('img_a.png'), findsNothing);
 
-      await controller.convert();
-      await tester.pumpAndSettle();
+        await controller.convert();
+        await tester.pumpAndSettle();
 
-      expect(File(outPath).existsSync(), true);
-    });
+        expect(File(outPath).existsSync(), true);
+      },
+    );
 
-    testWidgets('Positivo 5: Após sucesso, banner de confirmação com visual correto é exibido', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_pos5.pdf';
-      final picker = FixtureFilePicker(selectedPaths: [imgFixture], savePath: outPath);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+    testWidgets(
+      'Positivo 5: Após sucesso, banner de confirmação com visual correto é exibido',
+      (WidgetTester tester) async {
+        final outPath = '${Directory.systemTemp.path}${sep}out_pos5.pdf';
+        final picker = FixtureFilePicker(
+          selectedPaths: [imgFixture],
+          savePath: outPath,
+        );
+        final controller = ImageToPdfController(
+          filePicker: picker,
+          pdfCombiner: FakePdfCombiner(),
+        );
 
-      await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      await controller.selectImages();
-      await tester.pumpAndSettle();
+        await controller.selectImages();
+        await tester.pumpAndSettle();
 
-      await controller.convert();
-      await tester.pumpAndSettle();
+        await controller.convert();
+        await tester.pumpAndSettle();
 
-      final bannerFinder = find.byType(ResultBanner);
-      expect(bannerFinder, findsOneWidget);
-      
-      final banner = tester.widget<ResultBanner>(bannerFinder);
-      expect(banner.success, true);
-    });
+        final bannerFinder = find.byType(ResultBanner);
+        expect(bannerFinder, findsOneWidget);
+
+        final banner = tester.widget<ResultBanner>(bannerFinder);
+        expect(banner.success, true);
+      },
+    );
 
     // --- TESTES NEGATIVOS ---
 
-    testWidgets('Negativo 1: Tentar unir com apenas 1 PDF selecionado -> botão Unir permanece desabilitado', (WidgetTester tester) async {
-      final picker = FixtureFilePicker(selectedPaths: [docFixture]);
-      final controller = MergePdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+    testWidgets(
+      'Negativo 1: Tentar unir com apenas 1 PDF selecionado -> botão Unir permanece desabilitado',
+      (WidgetTester tester) async {
+        final picker = FixtureFilePicker(selectedPaths: [docFixture]);
+        final controller = MergePdfController(
+          filePicker: picker,
+          pdfCombiner: FakePdfCombiner(),
+        );
 
-      await tester.pumpWidget(MaterialApp(home: MergePdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(home: MergePdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      await controller.selectPdfs();
-      await tester.pumpAndSettle();
+        await controller.selectPdfs();
+        await tester.pumpAndSettle();
 
-      expect(find.byType(FileListTile), findsOneWidget);
+        expect(find.byType(FileListTile), findsOneWidget);
 
-      final buttonFinder = find.widgetWithText(ElevatedButton, 'Unir PDFs');
-      final button = tester.widget<ElevatedButton>(buttonFinder);
-      expect(button.onPressed, isNull); // desabilitado na UI
-    });
+        final buttonFinder = find.widgetWithText(ElevatedButton, 'Unir PDFs');
+        final button = tester.widget<ElevatedButton>(buttonFinder);
+        expect(button.onPressed, isNull); // desabilitado na UI
+      },
+    );
 
-    testWidgets('Negativo 2: Incluir um PDF corrompido na lista -> banner de erro identifica o problema', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_neg2.pdf';
-      final picker = FixtureFilePicker(selectedPaths: [docFixture, corruptedFixture], savePath: outPath);
-      final combiner = FakePdfCombiner(shouldThrowCorrupt: true);
-      final controller = MergePdfController(filePicker: picker, pdfCombiner: combiner);
+    testWidgets(
+      'Negativo 2: Incluir um PDF corrompido na lista -> banner de erro identifica o problema',
+      (WidgetTester tester) async {
+        final outPath = '${Directory.systemTemp.path}${sep}out_neg2.pdf';
+        final picker = FixtureFilePicker(
+          selectedPaths: [docFixture, corruptedFixture],
+          savePath: outPath,
+        );
+        final combiner = FakePdfCombiner(shouldThrowCorrupt: true);
+        final controller = MergePdfController(
+          filePicker: picker,
+          pdfCombiner: combiner,
+        );
 
-      await tester.pumpWidget(MaterialApp(home: MergePdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(home: MergePdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      await controller.selectPdfs();
-      await tester.pumpAndSettle();
+        await controller.selectPdfs();
+        await tester.pumpAndSettle();
 
-      await controller.merge();
-      await tester.pumpAndSettle();
+        await controller.merge();
+        await tester.pumpAndSettle();
 
-      expect(find.byType(ResultBanner), findsOneWidget);
-      final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
-      expect(banner.success, false);
-      expect(find.textContaining('Um ou mais arquivos PDF parecem corrompidos'), findsOneWidget);
-    });
+        expect(find.byType(ResultBanner), findsOneWidget);
+        final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
+        expect(banner.success, false);
+        expect(
+          find.textContaining('Um ou mais arquivos PDF parecem corrompidos'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Negativo 3: Tentar converter com lista de imagens vazia -> botão desabilitado', (WidgetTester tester) async {
-      final controller = ImageToPdfController();
-      await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Negativo 3: Tentar converter com lista de imagens vazia -> botão desabilitado',
+      (WidgetTester tester) async {
+        final controller = ImageToPdfController();
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      final buttonFinder = find.widgetWithText(ElevatedButton, 'Converter para PDF');
-      final button = tester.widget<ElevatedButton>(buttonFinder);
-      expect(button.onPressed, isNull); // desabilitado na UI
-    });
+        final buttonFinder = find.widgetWithText(
+          ElevatedButton,
+          'Converter para PDF',
+        );
+        final button = tester.widget<ElevatedButton>(buttonFinder);
+        expect(button.onPressed, isNull); // desabilitado na UI
+      },
+    );
 
-    testWidgets('Negativo 4: Definir caminho de saída em diretório sem permissão de escrita -> banner de erro e app não trava', (WidgetTester tester) async {
-      final outPath = '${Directory.systemTemp.path}${sep}out_neg4.pdf';
-      final picker = FixtureFilePicker(selectedPaths: [imgFixture], savePath: outPath);
-      final combiner = FakePdfCombiner(shouldThrowPermission: true);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: combiner);
+    testWidgets(
+      'Negativo 4: Definir caminho de saída em diretório sem permissão de escrita -> banner de erro e app não trava',
+      (WidgetTester tester) async {
+        final outPath = '${Directory.systemTemp.path}${sep}out_neg4.pdf';
+        final picker = FixtureFilePicker(
+          selectedPaths: [imgFixture],
+          savePath: outPath,
+        );
+        final combiner = FakePdfCombiner(shouldThrowPermission: true);
+        final controller = ImageToPdfController(
+          filePicker: picker,
+          pdfCombiner: combiner,
+        );
 
-      await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      await controller.selectImages();
-      await tester.pumpAndSettle();
+        await controller.selectImages();
+        await tester.pumpAndSettle();
 
-      await controller.convert();
-      await tester.pumpAndSettle();
+        await controller.convert();
+        await tester.pumpAndSettle();
 
-      expect(find.byType(ResultBanner), findsOneWidget);
-      final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
-      expect(banner.success, false);
-      expect(find.textContaining('Não foi possível salvar o arquivo'), findsOneWidget);
-    });
+        expect(find.byType(ResultBanner), findsOneWidget);
+        final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
+        expect(banner.success, false);
+        expect(
+          find.textContaining('Não foi possível salvar o arquivo'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Negativo 5: Tentar adicionar um tipo de arquivo não suportado (.txt) -> rejeitado, não entra na lista', (WidgetTester tester) async {
-      final picker = FixtureFilePicker(selectedPaths: ['C:\\path\\doc.txt']);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+    testWidgets(
+      'Negativo 5: Tentar adicionar um tipo de arquivo não suportado (.txt) -> rejeitado, não entra na lista',
+      (WidgetTester tester) async {
+        final picker = FixtureFilePicker(selectedPaths: ['C:\\path\\doc.txt']);
+        final controller = ImageToPdfController(
+          filePicker: picker,
+          pdfCombiner: FakePdfCombiner(),
+        );
 
-      await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(home: ImageToPdfScreen(controller: controller)),
+        );
+        await tester.pumpAndSettle();
 
-      await controller.selectImages();
-      await tester.pumpAndSettle();
+        await controller.selectImages();
+        await tester.pumpAndSettle();
 
-      // Não deve ter entrado na lista na UI
-      expect(find.byType(FileListTile), findsNothing);
-      expect(find.byType(ResultBanner), findsOneWidget);
-      final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
-      expect(banner.success, false);
-      expect(find.textContaining('Alguns arquivos foram ignorados'), findsOneWidget);
-    });
+        // Não deve ter entrado na lista na UI
+        expect(find.byType(FileListTile), findsNothing);
+        expect(find.byType(ResultBanner), findsOneWidget);
+        final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
+        expect(banner.success, false);
+        expect(
+          find.textContaining('Alguns arquivos foram ignorados'),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }

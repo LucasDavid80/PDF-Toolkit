@@ -11,11 +11,7 @@ class FileListTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.insert_drive_file),
       title: Text(filename, overflow: TextOverflow.ellipsis),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: onRemove,
-      ),
+      trailing: IconButton(icon: const Icon(Icons.delete), onPressed: onRemove),
     );
   }
 }
-

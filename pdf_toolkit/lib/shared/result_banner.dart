@@ -19,10 +19,11 @@ class ResultBanner extends StatelessWidget {
         children: [
           Icon(success ? Icons.check_circle : Icons.error, color: fg),
           const SizedBox(width: 8),
-          Expanded(child: Text(message, style: TextStyle(color: fg))),
+          Expanded(
+            child: Text(message, style: TextStyle(color: fg)),
+          ),
         ],
       ),
     );
   }
 }
-

@@ -36,13 +36,9 @@ class HomeScaffold extends StatelessWidget {
           ),
         ),
         body: const TabBarView(
-          children: [
-            ImageToPdfScreen(),
-            MergePdfScreen(),
-          ],
+          children: [ImageToPdfScreen(), MergePdfScreen()],
         ),
       ),
     );
   }
 }
-

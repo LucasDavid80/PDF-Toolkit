@@ -71,9 +71,16 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.picture_as_pdf, size: 64, color: Colors.grey.shade400),
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 64,
+                              color: Colors.grey.shade400,
+                            ),
                             const SizedBox(height: 16),
-                            Text('Nenhum PDF selecionado.', style: TextStyle(color: Colors.grey.shade600)),
+                            Text(
+                              'Nenhum PDF selecionado.',
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
                           ],
                         ),
                       );
@@ -84,11 +91,15 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
                       itemCount: files.length,
                       itemBuilder: (context, index) {
                         final path = files[index];
-                        final filename = path.split(Platform.pathSeparator).last;
+                        final filename = path
+                            .split(Platform.pathSeparator)
+                            .last;
                         return FileListTile(
                           key: ValueKey(path),
                           filename: filename,
-                          onRemove: isProcessing ? null : () => _controller.removePdf(index),
+                          onRemove: isProcessing
+                              ? null
+                              : () => _controller.removePdf(index),
                         );
                       },
                     );
@@ -136,4 +147,3 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
     );
   }
 }
-

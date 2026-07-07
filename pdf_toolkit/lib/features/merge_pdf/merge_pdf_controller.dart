@@ -13,8 +13,8 @@ class MergePdfController {
   MergePdfController({
     FilePickerWrapper filePicker = const FilePickerWrapper(),
     PdfCombinerWrapper pdfCombiner = const PdfCombinerWrapper(),
-  })  : _filePicker = filePicker,
-        _pdfCombiner = pdfCombiner;
+  }) : _filePicker = filePicker,
+       _pdfCombiner = pdfCombiner;
 
   final ValueNotifier<List<String>> pdfs = ValueNotifier<List<String>>([]);
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
@@ -39,10 +39,13 @@ class MergePdfController {
         final List<String> newPaths = result.paths.whereType<String>().toList();
 
         // Filter to .pdf to be defensive
-        final validPaths = newPaths.where((path) => path.toLowerCase().endsWith('.pdf')).toList();
+        final validPaths = newPaths
+            .where((path) => path.toLowerCase().endsWith('.pdf'))
+            .toList();
 
         if (validPaths.length < newPaths.length) {
-          errorMessage.value = 'Alguns arquivos foram ignorados por não serem PDFs válidos.';
+          errorMessage.value =
+              'Alguns arquivos foram ignorados por não serem PDFs válidos.';
         }
 
         pdfs.value = [...pdfs.value, ...validPaths];
@@ -68,8 +71,10 @@ class MergePdfController {
       targetIndex -= 1;
     }
     if (oldIndex != targetIndex &&
-        oldIndex >= 0 && oldIndex < pdfs.value.length &&
-        targetIndex >= 0 && targetIndex < pdfs.value.length) {
+        oldIndex >= 0 &&
+        oldIndex < pdfs.value.length &&
+        targetIndex >= 0 &&
+        targetIndex < pdfs.value.length) {
       final list = List<String>.from(pdfs.value);
       final item = list.removeAt(oldIndex);
       list.insert(targetIndex, item);
@@ -106,7 +111,10 @@ class MergePdfController {
 
       successMessage.value = outputPath;
     } catch (e) {
-      errorMessage.value = AppErrors.getFriendlyMessage(e, outputPath: outputPath);
+      errorMessage.value = AppErrors.getFriendlyMessage(
+        e,
+        outputPath: outputPath,
+      );
     } finally {
       isProcessing.value = false;
     }

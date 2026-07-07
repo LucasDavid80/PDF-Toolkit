@@ -45,10 +45,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                 valueListenable: _controller.errorMessage,
                 builder: (context, errorMsg, _) {
                   if (errorMsg == null) return const SizedBox.shrink();
-                  return ResultBanner(
-                    success: false,
-                    message: errorMsg,
-                  );
+                  return ResultBanner(success: false, message: errorMsg);
                 },
               ),
 
@@ -97,11 +94,15 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                       itemCount: filePaths.length,
                       itemBuilder: (context, index) {
                         final path = filePaths[index];
-                        final filename = path.split(Platform.pathSeparator).last;
+                        final filename = path
+                            .split(Platform.pathSeparator)
+                            .last;
                         return FileListTile(
                           key: ValueKey(path),
                           filename: filename,
-                          onRemove: isProcessing ? null : () => _controller.removeImage(index),
+                          onRemove: isProcessing
+                              ? null
+                              : () => _controller.removeImage(index),
                         );
                       },
                     );
@@ -117,7 +118,9 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                   builder: (context, filePaths, _) {
                     final hasImages = filePaths.isNotEmpty;
                     return ElevatedButton(
-                      onPressed: (hasImages && !isProcessing) ? _controller.convert : null,
+                      onPressed: (hasImages && !isProcessing)
+                          ? _controller.convert
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade700,
                         foregroundColor: Colors.white,

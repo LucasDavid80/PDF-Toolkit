@@ -5,10 +5,13 @@ class AppErrors {
   static String getFriendlyMessage(Object error, {String? outputPath}) {
     if (error is PdfCombinerException) {
       final message = error.message;
-      if (message.contains('invalid image') || message.contains('image format')) {
+      if (message.contains('invalid image') ||
+          message.contains('image format')) {
         return 'Uma ou mais imagens selecionadas parecem corrompidas ou inválidas.';
       }
-      if (message.contains('invalid pdf') || message.contains('corrupt') || message.contains('password protected')) {
+      if (message.contains('invalid pdf') ||
+          message.contains('corrupt') ||
+          message.contains('password protected')) {
         return 'Um ou mais arquivos PDF parecem corrompidos ou protegidos por senha.';
       }
       return 'Erro ao processar PDF: $message';

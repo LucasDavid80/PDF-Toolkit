@@ -12,8 +12,8 @@ class ImageToPdfController {
   ImageToPdfController({
     FilePickerWrapper filePicker = const FilePickerWrapper(),
     PdfCombinerWrapper pdfCombiner = const PdfCombinerWrapper(),
-  })  : _filePicker = filePicker,
-        _pdfCombiner = pdfCombiner;
+  }) : _filePicker = filePicker,
+       _pdfCombiner = pdfCombiner;
 
   final ValueNotifier<List<String>> images = ValueNotifier<List<String>>([]);
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
@@ -36,15 +36,18 @@ class ImageToPdfController {
 
       if (result != null && result.paths.isNotEmpty) {
         final List<String> newPaths = result.paths.whereType<String>().toList();
-        
+
         // Validação extra: garantir que apenas arquivos com extensões válidas entram na lista
         final validPaths = newPaths.where((path) {
           final lower = path.toLowerCase();
-          return lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg');
+          return lower.endsWith('.png') ||
+              lower.endsWith('.jpg') ||
+              lower.endsWith('.jpeg');
         }).toList();
 
         if (validPaths.length < newPaths.length) {
-          errorMessage.value = 'Alguns arquivos foram ignorados por não serem imagens (PNG/JPG/JPEG).';
+          errorMessage.value =
+              'Alguns arquivos foram ignorados por não serem imagens (PNG/JPG/JPEG).';
         }
 
         images.value = [...images.value, ...validPaths];
@@ -69,9 +72,11 @@ class ImageToPdfController {
     if (targetIndex > oldIndex) {
       targetIndex -= 1;
     }
-    if (oldIndex != targetIndex && 
-        oldIndex >= 0 && oldIndex < images.value.length && 
-        targetIndex >= 0 && targetIndex < images.value.length) {
+    if (oldIndex != targetIndex &&
+        oldIndex >= 0 &&
+        oldIndex < images.value.length &&
+        targetIndex >= 0 &&
+        targetIndex < images.value.length) {
       final list = List<String>.from(images.value);
       final item = list.removeAt(oldIndex);
       list.insert(targetIndex, item);
@@ -101,9 +106,9 @@ class ImageToPdfController {
       }
 
       isProcessing.value = true;
-      
+
       final inputs = images.value.map((path) => MergeInput.path(path)).toList();
-      
+
       await _pdfCombiner.createPDFFromMultipleImages(
         inputs: inputs,
         outputPath: outputPath,
@@ -111,7 +116,10 @@ class ImageToPdfController {
 
       successMessage.value = outputPath; // Usado para mostrar o local salvo
     } catch (e) {
-      errorMessage.value = AppErrors.getFriendlyMessage(e, outputPath: outputPath);
+      errorMessage.value = AppErrors.getFriendlyMessage(
+        e,
+        outputPath: outputPath,
+      );
     } finally {
       isProcessing.value = false;
     }
