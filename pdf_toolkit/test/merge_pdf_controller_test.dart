@@ -173,7 +173,7 @@ void main() {
       when(() => mockPdfCombiner.mergeMultiplePDFs(
             inputs: any(named: 'inputs'),
             outputPath: outputPath,
-          )).thenThrow(PathAccessException('C:\\output\\merged.pdf', const OSError('Permission denied', 13), 'Write permission denied'));
+          )).thenThrow(FileSystemException('Write permission denied', 'C:\\output\\merged.pdf'));
 
       await controller.merge();
 

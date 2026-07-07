@@ -177,7 +177,7 @@ void main() {
       when(() => mockPdfCombiner.createPDFFromMultipleImages(
             inputs: any(named: 'inputs'),
             outputPath: outputPath,
-          )).thenThrow(PathAccessException('C:\\output\\result.pdf', const OSError('Permission denied', 13), 'Write permission denied'));
+          )).thenThrow(FileSystemException('Write permission denied', 'C:\\output\\result.pdf'));
 
       await controller.convert();
 
