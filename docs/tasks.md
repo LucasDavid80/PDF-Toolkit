@@ -82,14 +82,14 @@
 
 ## Fase 7 — Pipeline de CI/CD
 
-- [ ] 7.1 Criar `.github/workflows/ci.yml` com o job `lint_and_analyze`
-- [ ] 7.2 Adicionar job `test` (unitários da Fase 4)
-- [ ] 7.3 Adicionar job `integration_test` em matrix (windows/macos/ubuntu+xvfb)
-- [ ] 7.4 Adicionar job `dependency_check` (`flutter pub outdated`)
-- [ ] 7.5 Adicionar job `build` em matrix, reaproveitando os scripts da Fase 6
+- [x] 7.1 Criar `.github/workflows/ci.yml` com o job `lint_and_analyze`
+- [x] 7.2 Adicionar job `test` (unitários da Fase 4)
+- [x] 7.3 Adicionar job `integration_test` em matrix (windows/macos/ubuntu+xvfb)
+- [x] 7.4 Adicionar job `dependency_check` (`flutter pub outdated`)
+- [x] 7.5 Adicionar job `build` em matrix, reaproveitando os scripts da Fase 6
       (build + empacotamento + assinatura condicional aos secrets existirem)
-- [ ] 7.6 Adicionar job `release` (trigger em tag `v*`), anexando os instaladores assinados
-- [ ] 7.7 Adicionar job `notify` com a condição `if` descrita na seção 9 do plan.md
+- [x] 7.6 Adicionar job `release` (trigger em tag `v*`), anexando os instaladores assinados
+- [x] 7.7 Adicionar job `notify` com a condição `if` descrita na seção 9 do plan.md
       (depende de `dependency_check`, `build`, `release`, tratando `release` skipped
       como OK)
 - [ ] 7.8 Cadastrar secrets no repositório: certificado Windows, certificado/Developer ID
