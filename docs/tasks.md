@@ -70,14 +70,14 @@
 
 ## Fase 6 — Empacotamento e assinatura
 
-- [ ] 6.1 Configurar ícone e metadata do app nas pastas `windows/`, `macos/`, `linux/`
-- [ ] 6.2 Windows: escrever script Inno Setup (`.iss`) e validar `iscc` gerando o `.exe`
-- [ ] 6.3 Windows: obter certificado de Code Signing e validar `signtool sign` localmente
-- [ ] 6.4 macOS: validar `flutter build macos --release` + empacotamento em `.dmg`
-- [ ] 6.5 macOS: configurar conta Apple Developer Program, `codesign` com Developer ID
-- [ ] 6.6 macOS: validar `notarytool submit` + `stapler staple` localmente
-- [ ] 6.7 Linux: validar `flutter build linux --release` + geração de `.AppImage`
-- [ ] 6.8 Documentar em `README.md` onde ficam os secrets/certificados esperados (sem
+- [x] 6.1 Configurar ícone e metadata do app nas pastas `windows/`, `macos/`, `linux/`
+- [x] 6.2 Windows: escrever script Inno Setup (`.iss`) e validar `iscc` gerando o `.exe`
+- [x] 6.3 Windows: obter certificado de Code Signing e validar `signtool sign` localmente
+- [x] 6.4 macOS: validar `flutter build macos --release` + empacotamento em `.dmg`
+- [x] 6.5 macOS: configurar conta Apple Developer Program, `codesign` com Developer ID
+- [x] 6.6 macOS: validar `notarytool submit` + `stapler staple` localmente
+- [x] 6.7 Linux: validar `flutter build linux --release` + geração de `.AppImage`
+- [x] 6.8 Documentar em `README.md` onde ficam os secrets/certificados esperados (sem
       commitar nenhum segredo no repositório)
 
 ## Fase 7 — Pipeline de CI/CD
