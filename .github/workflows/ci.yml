@@ -223,7 +223,7 @@ jobs:
         with:
           path: artifacts
       - name: Send email notification (if secrets available)
-        if: ${{ secrets.SMTP_SERVER && secrets.SMTP_USERNAME && secrets.SMTP_PASSWORD && secrets.NOTIFY_EMAIL_TO }}
+        if: secrets.SMTP_SERVER != '' && secrets.SMTP_USERNAME != '' && secrets.SMTP_PASSWORD != '' && secrets.NOTIFY_EMAIL_TO != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
