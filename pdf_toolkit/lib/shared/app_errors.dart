@@ -14,7 +14,7 @@ class AppErrors {
       return 'Erro ao processar PDF: $message';
     }
 
-    if (error is PathAccessException || error is FileSystemException) {
+    if (error is FileSystemException) {
       if (outputPath != null) {
         return 'Não foi possível salvar o arquivo em "$outputPath". Verifique se possui permissões de escrita.';
       }
