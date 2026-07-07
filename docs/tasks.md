@@ -51,11 +51,11 @@
 
 ## Fase 4 — Testes unitários
 
-- [ ] 4.1 Adicionar `mocktail` como dev dependency
-- [ ] 4.2 Criar mocks de `FilePicker` e `PdfCombiner` para isolar os controllers
-- [ ] 4.3 Escrever os 5 testes unitários positivos da seção 8.1 do plan.md
-- [ ] 4.4 Escrever os 5 testes unitários negativos da seção 8.1 do plan.md
-- [ ] 4.5 Rodar `flutter test --coverage` e revisar relatório de cobertura
+- [x] 4.1 Adicionar `mocktail` como dev dependency
+- [x] 4.2 Criar mocks de `FilePicker` e `PdfCombiner` para isolar os controllers
+- [x] 4.3 Escrever os 5 testes unitários positivos da seção 8.1 do plan.md
+- [x] 4.4 Escrever os 5 testes unitários negativos da seção 8.1 do plan.md
+- [x] 4.5 Rodar `flutter test --coverage` e revisar relatório de cobertura
 
 ## Fase 5 — Testes de integração
 
