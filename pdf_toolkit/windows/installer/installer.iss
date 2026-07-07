@@ -5,7 +5,7 @@
 
 [Setup]
 ; GUID único gerado para identificação do app no Windows
-AppId={{D3B39E0A-4FDF-4E38-B556-C4B06E9858A9}
+AppId={{D3B39E0A-4FDF-4E38-B556-C4B06E9858A9}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
