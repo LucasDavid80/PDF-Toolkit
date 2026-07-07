@@ -59,14 +59,14 @@
 
 ## Fase 5 — Testes de integração
 
-- [ ] 5.1 Adicionar pacote `integration_test` (SDK do Flutter)
-- [ ] 5.2 Criar imagens/PDFs de fixture em `integration_test/fixtures/` (incluindo pelo
+- [x] 5.1 Adicionar pacote `integration_test` (SDK do Flutter)
+- [x] 5.2 Criar imagens/PDFs de fixture em `integration_test/fixtures/` (incluindo pelo
       menos 1 PDF corrompido de propósito, para os casos negativos)
-- [ ] 5.3 Criar fake/mock de `file_picker` via method channel para os testes de integração
+- [x] 5.3 Criar fake/mock de `file_picker` via method channel para os testes de integração
       poderem "selecionar" arquivos sem diálogo nativo
-- [ ] 5.4 Escrever os 5 testes de integração positivos da seção 8.2 do plan.md
-- [ ] 5.5 Escrever os 5 testes de integração negativos da seção 8.2 do plan.md
-- [ ] 5.6 Rodar localmente em pelo menos 1 plataforma antes de subir pro CI
+- [x] 5.4 Escrever os 5 testes de integração positivos da seção 8.2 do plan.md
+- [x] 5.5 Escrever os 5 testes de integração negativos da seção 8.2 do plan.md
+- [x] 5.6 Rodar localmente em pelo menos 1 plataforma antes de subir pro CI
 
 ## Fase 6 — Empacotamento e assinatura
 

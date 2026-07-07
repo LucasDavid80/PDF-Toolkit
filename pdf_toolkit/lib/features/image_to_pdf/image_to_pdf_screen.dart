@@ -5,7 +5,8 @@ import 'image_to_pdf_controller.dart';
 import 'dart:io';
 
 class ImageToPdfScreen extends StatefulWidget {
-  const ImageToPdfScreen({super.key});
+  final ImageToPdfController? controller;
+  const ImageToPdfScreen({super.key, this.controller});
 
   @override
   State<ImageToPdfScreen> createState() => _ImageToPdfScreenState();
@@ -17,7 +18,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = ImageToPdfController();
+    _controller = widget.controller ?? ImageToPdfController();
   }
 
   @override

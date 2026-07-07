@@ -6,7 +6,8 @@ import '../../shared/file_list_tile.dart';
 import '../../shared/result_banner.dart';
 
 class MergePdfScreen extends StatefulWidget {
-  const MergePdfScreen({super.key});
+  final MergePdfController? controller;
+  const MergePdfScreen({super.key, this.controller});
 
   @override
   State<MergePdfScreen> createState() => _MergePdfScreenState();
@@ -18,7 +19,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = MergePdfController();
+    _controller = widget.controller ?? MergePdfController();
   }
 
   @override
