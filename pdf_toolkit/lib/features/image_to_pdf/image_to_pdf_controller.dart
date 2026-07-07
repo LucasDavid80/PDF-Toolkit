@@ -1,15 +1,19 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pdf_combiner/models/merge_input.dart';
-import 'package:pdf_combiner/pdf_combiner.dart';
 import '../../shared/app_errors.dart';
 import '../../shared/file_picker_wrapper.dart';
+import '../../shared/pdf_combiner_wrapper.dart';
 
 class ImageToPdfController {
   final FilePickerWrapper _filePicker;
+  final PdfCombinerWrapper _pdfCombiner;
 
-  ImageToPdfController({FilePickerWrapper filePicker = const FilePickerWrapper()}) 
-      : _filePicker = filePicker;
+  ImageToPdfController({
+    FilePickerWrapper filePicker = const FilePickerWrapper(),
+    PdfCombinerWrapper pdfCombiner = const PdfCombinerWrapper(),
+  })  : _filePicker = filePicker,
+        _pdfCombiner = pdfCombiner;
 
   final ValueNotifier<List<String>> images = ValueNotifier<List<String>>([]);
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
@@ -100,7 +104,7 @@ class ImageToPdfController {
       
       final inputs = images.value.map((path) => MergeInput.path(path)).toList();
       
-      await PdfCombiner.createPDFFromMultipleImages(
+      await _pdfCombiner.createPDFFromMultipleImages(
         inputs: inputs,
         outputPath: outputPath,
       );
