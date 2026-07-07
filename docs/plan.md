@@ -8,7 +8,7 @@
 - **Linguagem**: Dart
 - **Gerenciamento de estado**: `setState` / `ValueNotifier` (app pequeno, não precisa de
   Provider/Riverpod/Bloc — evitar complexidade desnecessária)
-- **Link do Repositório**: https://github.com/LucasDavid80/PDF-Toolkit.git
+- **Repositório**: ver `README.md` na raiz do projeto
 
 ## 2. Pacotes principais
 
