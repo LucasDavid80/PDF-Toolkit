@@ -67,8 +67,10 @@ na ordem que eu escolher, para consolidar documentos separados em um só arquivo
   respeitando a ordem definida pelo usuário.
 - Usuário escolhe local e nome do arquivo de saída via diálogo "Salvar como".
 - Confirmação de sucesso ao final.
-- **Tecnologia**: Implementado com o pacote `pdf` (Dart puro), garantindo compatibilidade
-  cross-platform (Windows, macOS, Linux) e evitando dependências externas.
+- **Tecnologia**: Implementado com o pacote `pdf_manipulator` (motor Rust, binário
+  baixado automaticamente no build — sem dependência de CMake local, que foi a causa
+  raiz do problema no Windows). Diferente do pacote `pdf` (usado na Funcionalidade 1),
+  que só cria PDFs do zero e não sabe ler/mesclar PDFs já existentes.
 
 ### 4.3 Casos de erro a tratar
 - Menos de 2 PDFs selecionados → botão de unir desabilitado.
