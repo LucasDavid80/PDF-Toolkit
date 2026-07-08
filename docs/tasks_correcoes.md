@@ -17,12 +17,12 @@
 
 ## Fase 1 — Configuração e Dependências (chore)
 
-- [ ] 1.1 Remover a dependência `pdf_combiner` do [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
-- [ ] 1.2 Adicionar `pdf: ^3.11.1` (conversão de imagens) e `pdf_manipulator: ^<versão mais recente>` (merge) no [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
-- [ ] 1.3 Verificar se a dependência `image` já está presente (necessária para decodificar imagens); caso contrário, adicioná-la.
-- [ ] 1.4 Executar `flutter pub get` na pasta `pdf_toolkit` para instalar as novas dependências.
-- [ ] 1.5 Executar `flutter pub remove pdf_combiner` para remover o pacote do pubspec.lock.
-- [ ] 1.6 Confirmar que o build hook do `pdf_manipulator` baixou o binário nativo para Windows automaticamente na primeira compilação (`flutter run -d windows`) — não deveria exigir nenhum setup manual em plataformas desktop, diferente do `pdf_combiner`.
+- [x] 1.1 Remover a dependência `pdf_combiner` do [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
+- [x] 1.2 Adicionar `pdf: ^3.11.1` (conversão de imagens) e `pdf_manipulator: ^<versão mais recente>` (merge) no [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
+- [x] 1.3 Verificar se a dependência `image` já está presente (necessária para decodificar imagens); caso contrário, adicioná-la.
+- [x] 1.4 Executar `flutter pub get` na pasta `pdf_toolkit` para instalar as novas dependências.
+- [x] 1.5 Executar `flutter pub remove pdf_combiner` para remover o pacote do pubspec.lock.
+- [x] 1.6 Confirmar que o build hook do `pdf_manipulator` baixou o binário nativo para Windows automaticamente na primeira compilação (`flutter run -d windows`) — não deveria exigir nenhum setup manual em plataformas desktop, diferente do `pdf_combiner`.
 
 ## Fase 2 — Criar Nova Camada de Serviço PDF (feat)
 
