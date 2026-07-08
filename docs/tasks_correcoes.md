@@ -1,29 +1,35 @@
-# Tarefas de Correção — Solução 3 (Trocar para `pdf`)
+# Tarefas de Correção — Trocar `pdf_combiner` por stack estável
 
-> Implementação da Solução 3: usar o pacote `pdf` (Dart puro) em vez de `pdf_combiner`.
-> Justificativa: o `pdf_combiner` apresenta dangling pointer no Windows que impede a criação de PDFs.
+> Substituir `pdf_combiner` por: `pdf`+`image` (Dart puro) para Imagens → PDF, e
+> `pdf_manipulator` (motor Rust, binário auto-baixado no build) para Unir PDFs.
+> Justificativa: `pdf_combiner` apresenta falha silenciosa no Windows — a documentação
+> oficial do pacote confirma que só "Android, iOS, Linux, macOS e web funcionam sem
+> configuração adicional", excluindo Windows dessa lista; isso bate com o erro de CMake
+> observado. O pacote `pdf` sozinho **não é suficiente para o merge** (ele só cria PDFs
+> do zero, não lê PDFs existentes) — por isso o merge usa `pdf_manipulator`, não `pdf`.
 > Execute uma fase por vez e aguarde confirmação antes de avançar. Siga o padrão de commits.
 
 ## Fase 0 — Planejamento e Documentação (docs)
 
-- [x] 0.1 Atualizar o [spec.md](file:///C:/dev/projects/PDF_Toolkit/docs/spec.md) para documentar que a conversão de Imagens → PDF e Unir PDFs será feita com o pacote `pdf` (Dart puro).
-- [x] 0.2 Atualizar o [plan.md](file:///C:/dev/projects/PDF_Toolkit/docs/plan.md) com a inclusão do pacote `pdf` e justificativa técnica (substituindo `pdf_combiner` por Dart puro).
+- [x] 0.1 Atualizar o [spec.md](file:///C:/dev/projects/PDF_Toolkit/docs/spec.md) para documentar que Imagens → PDF usa o pacote `pdf` (Dart puro) e Unir PDFs usa `pdf_manipulator`.
+- [x] 0.2 Atualizar o [plan.md](file:///C:/dev/projects/PDF_Toolkit/docs/plan.md) com a inclusão de `pdf`+`image` (conversão) e `pdf_manipulator` (merge), com justificativa técnica de cada escolha.
 - [x] 0.3 Adicionar notas em [plan.md](file:///C:/dev/projects/PDF_Toolkit/docs/plan.md) sobre as correções de infraestrutura no CI/CD (FUSE no Linux, ícone PNG, auditoria de vulnerabilidades) a serem tratadas em fases posteriores.
 
 ## Fase 1 — Configuração e Dependências (chore)
 
 - [ ] 1.1 Remover a dependência `pdf_combiner` do [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
-- [ ] 1.2 Adicionar a dependência `pdf: ^3.11.1` no [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
+- [ ] 1.2 Adicionar `pdf: ^3.11.1` (conversão de imagens) e `pdf_manipulator: ^<versão mais recente>` (merge) no [pubspec.yaml](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/pubspec.yaml).
 - [ ] 1.3 Verificar se a dependência `image` já está presente (necessária para decodificar imagens); caso contrário, adicioná-la.
 - [ ] 1.4 Executar `flutter pub get` na pasta `pdf_toolkit` para instalar as novas dependências.
 - [ ] 1.5 Executar `flutter pub remove pdf_combiner` para remover o pacote do pubspec.lock.
+- [ ] 1.6 Confirmar que o build hook do `pdf_manipulator` baixou o binário nativo para Windows automaticamente na primeira compilação (`flutter run -d windows`) — não deveria exigir nenhum setup manual em plataformas desktop, diferente do `pdf_combiner`.
 
 ## Fase 2 — Criar Nova Camada de Serviço PDF (feat)
 
 - [ ] 2.1 Criar novo arquivo [lib/shared/pdf_service.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/pdf_service.dart) com as funções:
-  - `convertImagesToPDF(List<String> imagePaths, String outputPath)`: converte imagens em PDF com uma página por imagem, mantendo proporções.
-  - `mergePDFs(List<String> pdfPaths, String outputPath)`: une múltiplos PDFs em um.
-- [ ] 2.2 Implementar validação de entrada, logging detalhado e tratamento de erros em ambas as funções.
+  - `convertImagesToPDF(List<String> imagePaths, String outputPath)`: usa `pw.Document` + `pw.Image(pw.MemoryImage(...))` do pacote `pdf` para gerar uma página por imagem, mantendo proporções.
+  - `mergePDFs(List<String> pdfPaths, String outputPath)`: usa `PdfManipulator().mergePDFs(params: PDFMergerParams(pdfsPaths: pdfPaths))` do pacote `pdf_manipulator` e move o arquivo resultante para `outputPath`. **Não usar o pacote `pdf` aqui — ele não lê PDFs existentes.**
+- [ ] 2.2 Implementar validação de entrada, logging detalhado e tratamento de erros em ambas as funções — em `mergePDFs`, capturar especificamente `PdfCorrupted`, `PdfPasswordRequired` e `PdfWrongPassword` do `pdf_manipulator` e traduzir para mensagens amigáveis (ver seção 5 do plan.md).
 
 ## Fase 3 — Refatoração dos Controllers (feat/fix)
 

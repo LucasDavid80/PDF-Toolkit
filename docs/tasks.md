@@ -3,6 +3,12 @@
 > Deriva de spec.md + plan.md. Cada tarefa é pequena o bastante para implementar e
 > verificar isoladamente antes de seguir para a próxima. Marque `[x]` conforme concluir.
 
+> ⚠️ **Nota de correção em andamento**: os itens 2.6-2.8 e 3.6-3.8 abaixo foram
+> implementados originalmente com `pdf_combiner`, que falhou silenciosamente no Windows.
+> A substituição por `pdf`+`image` (conversão) e `pdf_manipulator` (merge) está sendo
+> rastreada em `tasks_correcoes.md`. Quando essa correção for concluída, volte aqui e
+> atualize o texto de 2.6/3.6 para refletir as novas chamadas.
+
 ## Fase 0 — Fundação do projeto
 
 - [X] 0.1 `flutter create --platforms windows,macos,linux pdf_toolkit`
@@ -72,10 +78,10 @@
 
 - [x] 6.1 Configurar ícone e metadata do app nas pastas `windows/`, `macos/`, `linux/`
 - [x] 6.2 Windows: escrever script Inno Setup (`.iss`) e validar `iscc` gerando o `.exe`
-- [x] 6.3 Windows: obter certificado de Code Signing e validar `signtool sign` localmente
+- [ ] 6.3 Windows: obter certificado de Code Signing e validar `signtool sign` localmente
 - [x] 6.4 macOS: validar `flutter build macos --release` + empacotamento em `.dmg`
-- [x] 6.5 macOS: configurar conta Apple Developer Program, `codesign` com Developer ID
-- [x] 6.6 macOS: validar `notarytool submit` + `stapler staple` localmente
+- [ ] 6.5 macOS: configurar conta Apple Developer Program, `codesign` com Developer ID
+- [ ] 6.6 macOS: validar `notarytool submit` + `stapler staple` localmente
 - [x] 6.7 Linux: validar `flutter build linux --release` + geração de `.AppImage`
 - [x] 6.8 Documentar em `README.md` onde ficam os secrets/certificados esperados (sem
       commitar nenhum segredo no repositório)

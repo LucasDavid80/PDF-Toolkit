@@ -209,6 +209,13 @@ alguns complementares que valem a pena num projeto assim:
    com vulnerabilidade conhecida; complementa o `test` cuidando da saúde das
    dependências, não do código em si. Roda antes de `notify`.
 
+### 9.1 Notas sobre Correções de Infraestrutura (Tratadas em Fases Posteriores)
+
+Para garantir a robustez do pipeline de CI/CD e a conformidade do ambiente de build:
+1. **FUSE no Linux**: A execução e empacotamento do AppImage requerem FUSE no Linux (que por padrão não vem pré-configurado ou habilitado em containers Docker comuns de CI). Para contornar essa limitação no GitHub Actions, a variável de ambiente `APPIMAGE_EXTRACT_AND_RUN: 1` deve ser adicionada às etapas que utilizam `appimagetool` ou executam AppImages, instruindo o utilitário a extrair os conteúdos temporariamente em disco em vez de montar via FUSE.
+2. **Ícone PNG no Linux**: Garantir o uso de um ícone PNG de tamanho e formato corretos e compatíveis com a estrutura do Linux Desktop para evitar falhas durante o empacotamento nativo.
+3. **Auditoria de Vulnerabilidades (dependency_check)**: O job de `dependency_check` no workflow de CI/CD deve ser configurado para usar `dart pub audit` (ou equivalente) ativamente para falhar em caso de vulnerabilidades reais detectadas, em vez de ignorar avisos. A auditoria deve atuar diretamente na validação de dependências inseguras no repositório.
+
 Fluxo de dependência entre jobs:
 ```
 lint_and_analyze ─┐
