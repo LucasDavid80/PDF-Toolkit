@@ -38,6 +38,7 @@ dependencies:
   path: ^1.9.1
   pdf: ^3.11.3
   pdf_manipulator: ^0.5.9
+  image: ^4.5.4
 
 dev_dependencies:
   flutter_test:
