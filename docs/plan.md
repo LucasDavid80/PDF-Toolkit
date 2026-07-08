@@ -15,7 +15,8 @@
 | Pacote | Função | Motivo da escolha |
 |---|---|---|
 | `file_picker` | Diálogos nativos para selecionar imagens/PDFs e "Salvar como" | Padrão da comunidade, suporte desktop maduro (Windows/macOS/Linux), mantido ativamente |
-| `pdf` | Geração de PDFs e manipulação básica de documentos | Pacote Dart puro (sem código nativo), garantindo funcionamento multiplataforma estável sem risco de vazamento de memória ou ponteiros soltos (dangling pointers) |
+| `pdf` | Geração de PDF a partir de imagens (Funcionalidade 1) | Pacote Dart puro, sem código nativo — mas **só cria PDFs do zero**, não lê/mescla PDFs existentes. Por isso não serve para a Funcionalidade 2 |
+| `pdf_manipulator` | Merge de PDFs existentes (Funcionalidade 2) | Motor Rust; baixa o binário certo automaticamente no build para Windows/macOS/Linux (sem exigir CMake instalado localmente — era exatamente essa a causa raiz da falha silenciosa do `pdf_combiner` no Windows); expõe merge real de página (`PdfManipulator().mergePDFs(...)`) e exceções estruturadas (`PdfCorrupted`, `PdfPasswordRequired`, `PdfWrongPassword`) que mapeiam direto nos casos de erro da spec |
 | `image` | Decodificar e processar formatos de imagem (PNG/JPG/JPEG) | Pacote Dart puro para conversão confiável e de alta portabilidade de bytes de imagem |
 | `path` | Manipulação de caminhos (extrair extensão, nome de arquivo) | Pacote oficial do Dart, sem overhead |
 
@@ -40,7 +41,8 @@ lib/
     file_list_tile.dart       # widget reutilizável (linha da lista com nome + remover)
     result_banner.dart        # feedback de sucesso/erro reutilizável nas duas telas
     app_errors.dart           # tipos de erro tratados (arquivo corrompido, sem permissão, etc.)
-    pdf_service.dart          # serviço centralizado para conversão/mesclagem usando o pacote pdf
+    pdf_service.dart          # fachada única: convertImagesToPDF() usa `pdf`+`image`;
+                               # mergePDFs() usa `pdf_manipulator` internamente
 ```
 
 Separação **screen (UI)** vs **controller (lógica)** em cada feature: mantém a lógica de
@@ -59,16 +61,23 @@ seleção/ordenação/chamada de pacote testável sem precisar montar widgets.
 1. `file_picker.pickFiles(type: FileType.custom, allowedExtensions: ['pdf'], allowMultiple: true)`
 2. Mesma lista reordenável, mínimo de 2 itens para habilitar o botão.
 3. `file_picker.saveFile(...)`
-4. `PdfService.mergePDFs(pdfPaths: [...], outputPath: ...)`
+4. `PdfService.mergePDFs(pdfPaths: [...], outputPath: ...)` — internamente chama
+   `PdfManipulator().mergePDFs(params: PDFMergerParams(pdfsPaths: [...]))` e move/renomeia
+   o resultado para o `outputPath` escolhido pelo usuário.
 5. `ResultBanner` de sucesso/erro.
 
 ## 5. Tratamento de erros (mapeando a spec)
 
-- Exceções de processamento de PDF (`PdfServiceException` ou erros internos do pacote `pdf`) são capturadas e traduzidas em mensagens amigáveis via `app_errors.dart`.
+- **Imagens → PDF**: exceções do pacote `image` (imagem corrompida/formato inválido)
+  são capturadas e traduzidas em mensagens amigáveis via `app_errors.dart`.
+- **Unir PDFs**: `pdf_manipulator` lança exceções tipadas que mapeiam direto nos
+  casos de erro da spec — `PdfCorrupted` → "arquivo corrompido", `PdfPasswordRequired`/
+  `PdfWrongPassword` → "PDF protegido por senha", `PdfError` genérico → erro de I/O ou
+  outro problema. `app_errors.dart` faz esse `switch` e devolve a mensagem certa por tipo.
 - Falha de escrita (permissão negada) tratada como erro genérico de I/O, com mensagem
   "Não foi possível salvar o arquivo em [caminho]".
-- Arquivo de imagem/PDF corrompido: identificar qual arquivo causou a falha antes de
-  abortar, oferecendo feedback claro na tela.
+- Em ambos os casos: identificar qual arquivo causou a falha antes de abortar, oferecendo
+  feedback claro na tela (o usuário pode remover o arquivo problemático e tentar de novo).
 
 ## 6. Decisões técnicas em aberto (assumidas por padrão, revisáveis)
 
@@ -199,13 +208,6 @@ alguns complementares que valem a pena num projeto assim:
 7. **dependency_check** — roda `flutter pub outdated` e falha se houver dependência
    com vulnerabilidade conhecida; complementa o `test` cuidando da saúde das
    dependências, não do código em si. Roda antes de `notify`.
-
-### 9.1 Notas sobre Correções de Infraestrutura (Tratadas em Fases Posteriores)
-
-Para garantir a robustez do pipeline de CI/CD e a conformidade do ambiente de build:
-1. **FUSE no Linux**: A execução e empacotamento do AppImage requerem FUSE no Linux (que por padrão não vem pré-configurado ou habilitado em containers Docker comuns de CI). Para contornar essa limitação no GitHub Actions, a variável de ambiente `APPIMAGE_EXTRACT_AND_RUN: 1` deve ser adicionada às etapas que utilizam `appimagetool` ou executam AppImages, instruindo o utilitário a extrair os conteúdos temporariamente em disco em vez de montar via FUSE.
-2. **Ícone PNG no Linux**: Garantir o uso de um ícone PNG de tamanho e formato corretos e compatíveis com a estrutura do Linux Desktop para evitar falhas durante o empacotamento nativo.
-3. **Auditoria de Vulnerabilidades (dependency_check)**: O job de `dependency_check` no workflow de CI/CD deve ser configurado para usar `dart pub audit` (ou equivalente) ativamente para falhar em caso de vulnerabilidades reais detectadas, em vez de ignorar avisos. A auditoria deve atuar diretamente na validação de dependências inseguras no repositório.
 
 Fluxo de dependência entre jobs:
 ```
