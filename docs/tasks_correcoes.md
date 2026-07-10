@@ -26,7 +26,7 @@
 
 ## Fase 2 — Criar Nova Camada de Serviço PDF (feat)
 
-- [ ] 2.1 Criar novo arquivo [lib/shared/pdf_service.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/pdf_service.dart) com as funções:
+- [x] 2.1 Criar novo arquivo [lib/shared/pdf_service.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/pdf_service.dart) com as funções:
   - `convertImagesToPDF(List<String> imagePaths, String outputPath)`: usa `pw.Document` + `pw.Image(pw.MemoryImage(...))` do pacote `pdf` para gerar uma página por imagem, mantendo proporções.
   - `mergePDFs(List<String> pdfPaths, String outputPath)`: usa `PdfManipulator().mergePDFs(params: PDFMergerParams(pdfsPaths: pdfPaths))` do pacote `pdf_manipulator` e move o arquivo resultante para `outputPath`. **Não usar o pacote `pdf` aqui — ele não lê PDFs existentes.**
 - [ ] 2.2 Implementar validação de entrada, logging detalhado e tratamento de erros em ambas as funções — em `mergePDFs`, capturar especificamente `PdfCorrupted`, `PdfPasswordRequired` e `PdfWrongPassword` do `pdf_manipulator` e traduzir para mensagens amigáveis (ver seção 5 do plan.md).
