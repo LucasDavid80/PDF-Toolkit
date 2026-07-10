@@ -49,12 +49,12 @@
 
 ## Fase 5 — Testes e Validação Local (test)
 
-- [ ] 5.1 Executar `flutter clean && flutter pub get` para garantir ambiente limpo.
-- [ ] 5.2 Ajustar/criar testes unitários em [image_to_pdf_controller_test.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/test/image_to_pdf_controller_test.dart) (mockando `PdfService`).
-- [ ] 5.3 Rodar testes unitários com `flutter test` e garantir 100% de sucesso.
-- [ ] 5.4 Rodar testes de integração com `flutter test integration_test/app_test.dart` e garantir 100% de sucesso.
-- [ ] 5.5 Testar manualmente a conversão de imagens PNG/JPG → PDF no Windows e verificar que o PDF abre corretamente.
-- [ ] 5.6 Testar manualmente a mesclagem de múltiplos PDFs no Windows e verificar que todas as páginas estão presentes.
+- [x] 5.1 Executar `flutter clean && flutter pub get` para garantir ambiente limpo.
+- [x] 5.2 Ajustar/criar testes unitários em [image_to_pdf_controller_test.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/test/image_to_pdf_controller_test.dart) (mockando `PdfService`).
+- [x] 5.3 Rodar testes unitários com `flutter test` e garantir 100% de sucesso.
+- [x] 5.4 Rodar testes de integração com `flutter test integration_test/app_test.dart` e garantir 100% de sucesso.
+- [x] 5.5 Testar manualmente a conversão de imagens PNG/JPG → PDF no Windows e verificar que o PDF abre corretamente.
+- [x] 5.6 Testar manualmente a mesclagem de múltiplos PDFs no Windows e verificar que todas as páginas estão presentes.
 
 ## Fase 6 — Build e Distribuição (build)
 
