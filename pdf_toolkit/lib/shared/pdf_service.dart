@@ -166,7 +166,7 @@ class PdfService {
   }
 
   /// Helper method to translate engine specific errors into [PdfServiceException].
-  static Object _wrapError(Object error, String filePath) {
+  Object _wrapError(Object error, String filePath) {
     if (error is PdfCorrupted) {
       return PdfServiceException(
         'O arquivo PDF está corrompido ou é inválido.',

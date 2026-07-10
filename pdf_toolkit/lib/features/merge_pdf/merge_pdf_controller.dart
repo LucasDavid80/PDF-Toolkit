@@ -1,7 +1,5 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:pdf_combiner/models/merge_input.dart';
-
 import '../../shared/app_errors.dart';
 import '../../shared/file_picker_wrapper.dart';
 import '../../shared/pdf_service.dart';
