@@ -68,16 +68,11 @@ seleção/ordenação/chamada de pacote testável sem precisar montar widgets.
 
 ## 5. Tratamento de erros (mapeando a spec)
 
-- **Imagens → PDF**: exceções do pacote `image` (imagem corrompida/formato inválido)
-  são capturadas e traduzidas em mensagens amigáveis via `app_errors.dart`.
-- **Unir PDFs**: `pdf_manipulator` lança exceções tipadas que mapeiam direto nos
-  casos de erro da spec — `PdfCorrupted` → "arquivo corrompido", `PdfPasswordRequired`/
-  `PdfWrongPassword` → "PDF protegido por senha", `PdfError` genérico → erro de I/O ou
-  outro problema. `app_errors.dart` faz esse `switch` e devolve a mensagem certa por tipo.
-- Falha de escrita (permissão negada) tratada como erro genérico de I/O, com mensagem
-  "Não foi possível salvar o arquivo em [caminho]".
-- Em ambos os casos: identificar qual arquivo causou a falha antes de abortar, oferecendo
-  feedback claro na tela (o usuário pode remover o arquivo problemático e tentar de novo).
+As operações de PDF são centralizadas na fachada `PdfService`, que traduz exceções nativas e erros de I/O na exceção customizada `PdfServiceException`:
+- **Imagens → PDF**: Exceções do pacote `image` (como decodificação falha ou imagem corrompida) e falhas de leitura/escrita são capturadas e convertidas em `PdfServiceException` com mensagens amigáveis em português e o caminho do arquivo com erro.
+- **Unir PDFs**: O motor nativo Rust de `pdf_manipulator` lança exceções específicas (`PdfCorrupted`, `PdfPasswordRequired`, `PdfWrongPassword`, `PdfError`). O `PdfService` intercepta essas exceções no método `_wrapError` e as converte em `PdfServiceException` apropriadas em português, mantendo a referência ao arquivo que causou a falha.
+- **Camada de Erros da UI**: O arquivo `app_errors.dart` intercepta a exceção `PdfServiceException` e expõe a string amigável formatada para a UI (exibida no `ResultBanner`). Para erros de I/O genéricos (`FileSystemException`), o `app_errors.dart` faz a tradução direta para mensagens informando sobre permissão negada.
+- Em ambos os casos: O erro reporta de forma inequívoca qual arquivo (caminho em disco) causou a falha, permitindo que o usuário identifique o problema, remova o item da lista na interface do app e execute a operação novamente.
 
 ## 6. Decisões técnicas em aberto (assumidas por padrão, revisáveis)
 
