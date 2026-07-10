@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:pdf_combiner/exception/pdf_combiner_exception.dart';
 import 'package:pdf_toolkit/features/image_to_pdf/image_to_pdf_controller.dart';
 import 'package:pdf_toolkit/features/image_to_pdf/image_to_pdf_screen.dart';
 import 'package:pdf_toolkit/features/merge_pdf/merge_pdf_controller.dart';
 import 'package:pdf_toolkit/features/merge_pdf/merge_pdf_screen.dart';
 import 'package:pdf_toolkit/shared/file_picker_wrapper.dart';
-import 'package:pdf_toolkit/shared/pdf_combiner_wrapper.dart';
+import 'package:pdf_toolkit/shared/pdf_service.dart';
 import 'package:pdf_toolkit/shared/result_banner.dart';
 import 'package:pdf_toolkit/shared/file_list_tile.dart';
 
@@ -47,22 +46,22 @@ class FixtureFilePicker extends FilePickerWrapper {
   }
 }
 
-class FakePdfCombiner extends PdfCombinerWrapper {
+class FakePdfService extends PdfService {
   final bool shouldThrowCorrupt;
   final bool shouldThrowPermission;
 
-  FakePdfCombiner({
+  FakePdfService({
     this.shouldThrowCorrupt = false,
     this.shouldThrowPermission = false,
   });
 
   @override
-  Future<String> createPDFFromMultipleImages({
-    required List inputs,
-    required String outputPath,
-  }) async {
+  Future<void> convertImagesToPDF(
+    List<String> imagePaths,
+    String outputPath,
+  ) async {
     if (shouldThrowCorrupt) {
-      throw PdfCombinerException('invalid image format');
+      throw PdfServiceException('A imagem selecionada parece corrompida ou possui um formato inválido.');
     }
     if (shouldThrowPermission) {
       throw PathAccessException(
@@ -74,16 +73,15 @@ class FakePdfCombiner extends PdfCombinerWrapper {
     final out = File(outputPath);
     await out.create(recursive: true);
     await out.writeAsString('FAKE_PDF_FROM_IMAGES');
-    return outputPath;
   }
 
   @override
-  Future<String> mergeMultiplePDFs({
-    required List inputs,
-    required String outputPath,
-  }) async {
+  Future<void> mergePDFs(
+    List<String> pdfPaths,
+    String outputPath,
+  ) async {
     if (shouldThrowCorrupt) {
-      throw PdfCombinerException('invalid pdf format or protected');
+      throw PdfServiceException('O arquivo PDF está corrompido ou é inválido.');
     }
     if (shouldThrowPermission) {
       throw PathAccessException(
@@ -95,7 +93,6 @@ class FakePdfCombiner extends PdfCombinerWrapper {
     final out = File(outputPath);
     await out.create(recursive: true);
     await out.writeAsString('FAKE_MERGED_PDF');
-    return outputPath;
   }
 }
 
@@ -118,7 +115,7 @@ void main() {
         selectedPaths: ['img_a.png', 'img_b.jpg', 'img_c.jpeg'],
         savePath: outPath,
       );
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = ImageToPdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(
         home: ImageToPdfScreen(controller: controller),
@@ -156,7 +153,7 @@ void main() {
     testWidgets('Positivo 2: Selecionar 1 única imagem -> converter -> sucesso', (WidgetTester tester) async {
       final outPath = '${Directory.systemTemp.path}${sep}out_pos2.pdf';
       final picker = FixtureFilePicker(selectedPaths: [imgFixture], savePath: outPath);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = ImageToPdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -176,7 +173,7 @@ void main() {
     testWidgets('Positivo 3: Selecionar 2 PDFs -> unir -> sucesso', (WidgetTester tester) async {
       final outPath = '${Directory.systemTemp.path}${sep}out_pos3.pdf';
       final picker = FixtureFilePicker(selectedPaths: ['C:\\path\\doc_a.pdf', 'C:\\path\\doc_b.pdf'], savePath: outPath);
-      final controller = MergePdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = MergePdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(home: MergePdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -200,7 +197,7 @@ void main() {
         selectedPaths: ['img_a.png', 'img_b.jpg'],
         savePath: outPath,
       );
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = ImageToPdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -228,7 +225,7 @@ void main() {
     testWidgets('Positivo 5: Após sucesso, banner de confirmação com visual correto é exibido', (WidgetTester tester) async {
       final outPath = '${Directory.systemTemp.path}${sep}out_pos5.pdf';
       final picker = FixtureFilePicker(selectedPaths: [imgFixture], savePath: outPath);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = ImageToPdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -250,7 +247,7 @@ void main() {
 
     testWidgets('Negativo 1: Tentar unir com apenas 1 PDF selecionado -> botão Unir permanece desabilitado', (WidgetTester tester) async {
       final picker = FixtureFilePicker(selectedPaths: [docFixture]);
-      final controller = MergePdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = MergePdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(home: MergePdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -268,8 +265,8 @@ void main() {
     testWidgets('Negativo 2: Incluir um PDF corrompido na lista -> banner de erro identifica o problema', (WidgetTester tester) async {
       final outPath = '${Directory.systemTemp.path}${sep}out_neg2.pdf';
       final picker = FixtureFilePicker(selectedPaths: [docFixture, corruptedFixture], savePath: outPath);
-      final combiner = FakePdfCombiner(shouldThrowCorrupt: true);
-      final controller = MergePdfController(filePicker: picker, pdfCombiner: combiner);
+      final combiner = FakePdfService(shouldThrowCorrupt: true);
+      final controller = MergePdfController(filePicker: picker, pdfService: combiner);
 
       await tester.pumpWidget(MaterialApp(home: MergePdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -283,7 +280,7 @@ void main() {
       expect(find.byType(ResultBanner), findsOneWidget);
       final banner = tester.widget<ResultBanner>(find.byType(ResultBanner));
       expect(banner.success, false);
-      expect(find.textContaining('Um ou mais arquivos PDF parecem corrompidos'), findsOneWidget);
+      expect(find.textContaining('O arquivo PDF está corrompido ou é inválido.'), findsOneWidget);
     });
 
     testWidgets('Negativo 3: Tentar converter com lista de imagens vazia -> botão desabilitado', (WidgetTester tester) async {
@@ -299,8 +296,8 @@ void main() {
     testWidgets('Negativo 4: Definir caminho de saída em diretório sem permissão de escrita -> banner de erro e app não trava', (WidgetTester tester) async {
       final outPath = '${Directory.systemTemp.path}${sep}out_neg4.pdf';
       final picker = FixtureFilePicker(selectedPaths: [imgFixture], savePath: outPath);
-      final combiner = FakePdfCombiner(shouldThrowPermission: true);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: combiner);
+      final combiner = FakePdfService(shouldThrowPermission: true);
+      final controller = ImageToPdfController(filePicker: picker, pdfService: combiner);
 
       await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -319,7 +316,7 @@ void main() {
 
     testWidgets('Negativo 5: Tentar adicionar um tipo de arquivo não suportado (.txt) -> rejeitado, não entra na lista', (WidgetTester tester) async {
       final picker = FixtureFilePicker(selectedPaths: ['C:\\path\\doc.txt']);
-      final controller = ImageToPdfController(filePicker: picker, pdfCombiner: FakePdfCombiner());
+      final controller = ImageToPdfController(filePicker: picker, pdfService: FakePdfService());
 
       await tester.pumpWidget(MaterialApp(home: ImageToPdfScreen(controller: controller)));
       await tester.pumpAndSettle();
