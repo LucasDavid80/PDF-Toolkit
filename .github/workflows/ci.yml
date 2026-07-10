@@ -66,8 +66,10 @@ jobs:
         with:
           flutter-version: 'stable'
           cache: true
-      - name: Run dart pub audit
-        run: dart pub audit
+      - name: Install dart_audit
+        run: dart pub global activate dart_audit
+      - name: Run dart_audit audit
+        run: dart pub global run dart_audit audit
 
   integration_test:
     name: Integration Tests (${{ matrix.os }})
