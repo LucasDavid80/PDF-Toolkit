@@ -239,6 +239,7 @@ jobs:
           server_port: ${{ secrets.SMTP_PORT || 587 }}
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
+          from: ${{ secrets.SMTP_USERNAME }}
           subject: "PDF Toolkit CI: Build & Tests Passed"
           body: "Build, tests and integration tests passed. Artifacts attached."
           to: ${{ secrets.NOTIFY_EMAIL_TO }}
