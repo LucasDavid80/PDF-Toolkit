@@ -70,5 +70,5 @@
 
 ## Fase 8 — Documentação Final (docs)
 
-- [ ] 8.1 Atualizar README.md com referência à Solução 3 e justificativa técnica.
-- [ ] 8.2 Documentar qualquer mudança de API ou comportamento no docs/ se aplicável.
+- [x] 8.1 Atualizar README.md com referência à Solução 3 e justificativa técnica.
+- [x] 8.2 Documentar qualquer mudança de API ou comportamento no docs/ se aplicável.
