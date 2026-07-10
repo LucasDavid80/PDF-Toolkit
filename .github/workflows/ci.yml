@@ -161,6 +161,8 @@ jobs:
       - name: Build & Package Linux
         if: matrix.os == 'ubuntu-latest'
         shell: bash
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
         run: bash linux/build_linux.sh
         
       # Upload do artefato empacotado e assinado gerado pelos scripts
