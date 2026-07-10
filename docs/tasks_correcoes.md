@@ -45,7 +45,7 @@
 
 ## Fase 4 — Remoção de Código Legado (chore)
 
-- [ ] 4.1 Remover ou manter como backup o arquivo [lib/shared/pdf_combiner_wrapper.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/pdf_combiner_wrapper.dart) (recomendação: remover após validação).
+- [x] 4.1 Remover ou manter como backup o arquivo [lib/shared/pdf_combiner_wrapper.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/pdf_combiner_wrapper.dart) (recomendação: remover após validação).
 
 ## Fase 5 — Testes e Validação Local (test)
 
