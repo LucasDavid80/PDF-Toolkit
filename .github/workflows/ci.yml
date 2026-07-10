@@ -66,8 +66,10 @@ jobs:
         with:
           flutter-version: 'stable'
           cache: true
-      - name: Run flutter pub outdated
-        run: flutter pub outdated || true
+      - name: Install dart_audit
+        run: dart pub global activate dart_audit
+      - name: Run dart_audit audit
+        run: dart pub global run dart_audit audit
 
   integration_test:
     name: Integration Tests (${{ matrix.os }})
@@ -161,6 +163,8 @@ jobs:
       - name: Build & Package Linux
         if: matrix.os == 'ubuntu-latest'
         shell: bash
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
         run: bash linux/build_linux.sh
         
       # Upload do artefato empacotado e assinado gerado pelos scripts

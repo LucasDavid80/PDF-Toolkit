@@ -1,19 +1,18 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:pdf_combiner/models/merge_input.dart';
 import '../../shared/app_errors.dart';
 import '../../shared/file_picker_wrapper.dart';
-import '../../shared/pdf_combiner_wrapper.dart';
+import '../../shared/pdf_service.dart';
 
 class ImageToPdfController {
   final FilePickerWrapper _filePicker;
-  final PdfCombinerWrapper _pdfCombiner;
+  final PdfService _pdfService;
 
   ImageToPdfController({
     FilePickerWrapper filePicker = const FilePickerWrapper(),
-    PdfCombinerWrapper pdfCombiner = const PdfCombinerWrapper(),
+    PdfService pdfService = const PdfService(),
   })  : _filePicker = filePicker,
-        _pdfCombiner = pdfCombiner;
+        _pdfService = pdfService;
 
   final ValueNotifier<List<String>> images = ValueNotifier<List<String>>([]);
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
@@ -102,11 +101,9 @@ class ImageToPdfController {
 
       isProcessing.value = true;
       
-      final inputs = images.value.map((path) => MergeInput.path(path)).toList();
-      
-      await _pdfCombiner.createPDFFromMultipleImages(
-        inputs: inputs,
-        outputPath: outputPath,
+      await _pdfService.convertImagesToPDF(
+        images.value,
+        outputPath,
       );
 
       successMessage.value = outputPath; // Usado para mostrar o local salvo

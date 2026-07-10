@@ -23,7 +23,7 @@ Categories=Office;Utility;
 EOF
 
 # Copiar icone
-cp windows/runner/resources/app_icon.ico "$APPDIR"/pdf_toolkit.ico
+cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png "$APPDIR"/pdf_toolkit.png
 
 # Criar AppRun basico
 cat <<EOF > "$APPDIR"/AppRun

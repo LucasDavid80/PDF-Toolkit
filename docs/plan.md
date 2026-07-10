@@ -15,7 +15,9 @@
 | Pacote | Função | Motivo da escolha |
 |---|---|---|
 | `file_picker` | Diálogos nativos para selecionar imagens/PDFs e "Salvar como" | Padrão da comunidade, suporte desktop maduro (Windows/macOS/Linux), mantido ativamente |
-| `pdf_combiner` | Converter imagens → PDF e unir múltiplos PDFs | Cobre as duas funcionalidades com uma única dependência; usa PDFium (Linux/Windows) e Swift nativo (macOS) — sem depender de serviço externo/nuvem |
+| `pdf` | Geração de PDF a partir de imagens (Funcionalidade 1) | Pacote Dart puro, sem código nativo — mas **só cria PDFs do zero**, não lê/mescla PDFs existentes. Por isso não serve para a Funcionalidade 2 |
+| `pdf_manipulator` | Merge de PDFs existentes (Funcionalidade 2) | Motor Rust; baixa o binário certo automaticamente no build para Windows/macOS/Linux (sem exigir CMake instalado localmente — era exatamente essa a causa raiz da falha silenciosa do `pdf_combiner` no Windows); expõe merge real de página (`PdfManipulator().mergePDFs(...)`) e exceções estruturadas (`PdfCorrupted`, `PdfPasswordRequired`, `PdfWrongPassword`) que mapeiam direto nos casos de erro da spec |
+| `image` | Decodificar e processar formatos de imagem (PNG/JPG/JPEG) | Pacote Dart puro para conversão confiável e de alta portabilidade de bytes de imagem |
 | `path` | Manipulação de caminhos (extrair extensão, nome de arquivo) | Pacote oficial do Dart, sem overhead |
 
 Não usaremos `reorderable_listview` como pacote externo — o Flutter já tem
@@ -31,14 +33,16 @@ lib/
   features/
     image_to_pdf/
       image_to_pdf_screen.dart   # UI: lista reordenável + botões
-      image_to_pdf_controller.dart # lógica: seleção, ordenação, chamada ao pdf_combiner
+      image_to_pdf_controller.dart # lógica: seleção, ordenação, chamada ao PdfService
     merge_pdf/
       merge_pdf_screen.dart
-      merge_pdf_controller.dart
+      merge_pdf_controller.dart  # lógica: seleção, ordenação, chamada ao PdfService
   shared/
     file_list_tile.dart       # widget reutilizável (linha da lista com nome + remover)
     result_banner.dart        # feedback de sucesso/erro reutilizável nas duas telas
     app_errors.dart           # tipos de erro tratados (arquivo corrompido, sem permissão, etc.)
+    pdf_service.dart          # fachada única: convertImagesToPDF() usa `pdf`+`image`;
+                               # mergePDFs() usa `pdf_manipulator` internamente
 ```
 
 Separação **screen (UI)** vs **controller (lógica)** em cada feature: mantém a lógica de
@@ -50,24 +54,25 @@ seleção/ordenação/chamada de pacote testável sem precisar montar widgets.
 1. `file_picker.pickFiles(type: FileType.custom, allowedExtensions: ['png','jpg','jpeg'], allowMultiple: true)`
 2. Lista exibida em `ReorderableListView`; usuário reordena/remove.
 3. Ao confirmar: `file_picker.saveFile(...)` para escolher destino.
-4. `PdfCombiner.createPDFFromMultipleImages(inputPaths: [...], outputPath: ...)`
+4. `PdfService.convertImagesToPDF(imagePaths: [...], outputPath: ...)`
 5. Exibir `ResultBanner` de sucesso/erro.
 
 **Unir PDFs**
 1. `file_picker.pickFiles(type: FileType.custom, allowedExtensions: ['pdf'], allowMultiple: true)`
 2. Mesma lista reordenável, mínimo de 2 itens para habilitar o botão.
 3. `file_picker.saveFile(...)`
-4. `PdfCombiner.mergeMultiplePDFs(inputPaths: [...], outputPath: ...)`
+4. `PdfService.mergePDFs(pdfPaths: [...], outputPath: ...)` — internamente chama
+   `PdfManipulator().mergePDFs(params: PDFMergerParams(pdfsPaths: [...]))` e move/renomeia
+   o resultado para o `outputPath` escolhido pelo usuário.
 5. `ResultBanner` de sucesso/erro.
 
 ## 5. Tratamento de erros (mapeando a spec)
 
-- Exceções do `pdf_combiner` (`PdfCombinerException`) são capturadas e traduzidas em
-  mensagens amigáveis via `app_errors.dart`.
-- Falha de escrita (permissão negada) tratada como erro genérico de I/O, com mensagem
-  "Não foi possível salvar o arquivo em [caminho]".
-- Arquivo de imagem/PDF corrompido: identificar qual arquivo causou a falha antes de
-  abortar (o pacote retorna erro por arquivo problemático quando possível).
+As operações de PDF são centralizadas na fachada `PdfService`, que traduz exceções nativas e erros de I/O na exceção customizada `PdfServiceException`:
+- **Imagens → PDF**: Exceções do pacote `image` (como decodificação falha ou imagem corrompida) e falhas de leitura/escrita são capturadas e convertidas em `PdfServiceException` com mensagens amigáveis em português e o caminho do arquivo com erro.
+- **Unir PDFs**: O motor nativo Rust de `pdf_manipulator` lança exceções específicas (`PdfCorrupted`, `PdfPasswordRequired`, `PdfWrongPassword`, `PdfError`). O `PdfService` intercepta essas exceções no método `_wrapError` e as converte em `PdfServiceException` apropriadas em português, mantendo a referência ao arquivo que causou a falha.
+- **Camada de Erros da UI**: O arquivo `app_errors.dart` intercepta a exceção `PdfServiceException` e expõe a string amigável formatada para a UI (exibida no `ResultBanner`). Para erros de I/O genéricos (`FileSystemException`), o `app_errors.dart` faz a tradução direta para mensagens informando sobre permissão negada.
+- Em ambos os casos: O erro reporta de forma inequívoca qual arquivo (caminho em disco) causou a falha, permitindo que o usuário identifique o problema, remova o item da lista na interface do app e execute a operação novamente.
 
 ## 6. Decisões técnicas em aberto (assumidas por padrão, revisáveis)
 
@@ -106,7 +111,7 @@ plataforma.
 
 ## 8. Estratégia de Testes
 
-### 8.1 Testes unitários (`flutter_test` + `mocktail` para simular `file_picker` e `pdf_combiner`)
+### 8.1 Testes unitários (`flutter_test` + `mocktail` para simular `file_picker` e `PdfService`)
 Focados na lógica dos controllers (`image_to_pdf_controller`, `merge_pdf_controller`),
 sem UI nem I/O real.
 
@@ -114,17 +119,17 @@ sem UI nem I/O real.
 1. Adicionar imagens válidas (png/jpg/jpeg) → lista atualizada corretamente.
 2. Reordenar itens na lista → ordem refletida no estado.
 3. Remover item da lista → item removido, estado consistente.
-4. Converter com lista válida + caminho de saída válido → `PdfCombiner.createPDFFromMultipleImages`
+4. Converter com lista válida + caminho de saída válido → `PdfService.convertImagesToPDF`
    chamado com os parâmetros corretos, retorno de sucesso.
-5. Unir com 2+ PDFs válidos → `PdfCombiner.mergeMultiplePDFs` chamado corretamente,
+5. Unir com 2+ PDFs válidos → `PdfService.mergePDFs` chamado corretamente,
    retorno de sucesso.
 
 **Negativos (mínimo 5):**
 1. Tentar adicionar arquivo com extensão não suportada (ex. `.gif`) → rejeitado, lista
    não muda, erro reportado.
-2. Tentar converter com lista de imagens vazia → ação bloqueada, sem chamar o pacote.
+2. Tentar converter com lista de imagens vazia → ação bloqueada, sem chamar o serviço.
 3. Tentar unir com apenas 1 PDF selecionado → ação bloqueada, erro "selecione ao menos 2".
-4. `PdfCombiner` lança exceção (arquivo corrompido) → controller captura e expõe
+4. `PdfService` lança exceção (arquivo corrompido) → controller captura e expõe
    mensagem amigável, sem crashar.
 5. Falha de escrita simulada (permissão negada) → controller expõe erro de I/O claro.
 
@@ -199,6 +204,13 @@ alguns complementares que valem a pena num projeto assim:
    com vulnerabilidade conhecida; complementa o `test` cuidando da saúde das
    dependências, não do código em si. Roda antes de `notify`.
 
+### 9.1 Notas sobre Correções de Infraestrutura (Tratadas em Fases Posteriores)
+
+Para garantir a robustez do pipeline de CI/CD e a conformidade do ambiente de build:
+1. **FUSE no Linux**: A execução e empacotamento do AppImage requerem FUSE no Linux (que por padrão não vem pré-configurado ou habilitado em containers Docker comuns de CI). Para contornar essa limitação no GitHub Actions, a variável de ambiente `APPIMAGE_EXTRACT_AND_RUN: 1` deve ser adicionada às etapas que utilizam `appimagetool` ou executam AppImages, instruindo o utilitário a extrair os conteúdos temporariamente em disco em vez de montar via FUSE.
+2. **Ícone PNG no Linux**: Garantir o uso de um ícone PNG de tamanho e formato corretos e compatíveis com a estrutura do Linux Desktop para evitar falhas durante o empacotamento nativo.
+3. **Auditoria de Vulnerabilidades (dependency_check)**: O job de `dependency_check` no workflow de CI/CD deve ser configurado para usar `dart pub audit` (ou equivalente) ativamente para falhar em caso de vulnerabilidades reais detectadas, em vez de ignorar avisos. A auditoria deve atuar diretamente na validação de dependências inseguras no repositório.
+
 Fluxo de dependência entre jobs:
 ```
 lint_and_analyze ─┐
@@ -206,7 +218,7 @@ lint_and_analyze ─┐
 test ──────────────┼─► build ─┐
                    │           ├─► release (só em tag) ─┐
 integration_test ──┘           │                         ├─► notify
-                                └─────────────────────────┘
+                               └─────────────────────────┘
 dependency_check ───────────────────────────────────────────┘
 ```
 

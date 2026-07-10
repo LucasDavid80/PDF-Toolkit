@@ -2,17 +2,16 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:pdf_combiner/exception/pdf_combiner_exception.dart';
 import 'package:pdf_toolkit/features/image_to_pdf/image_to_pdf_controller.dart';
 import 'package:pdf_toolkit/shared/file_picker_wrapper.dart';
-import 'package:pdf_toolkit/shared/pdf_combiner_wrapper.dart';
+import 'package:pdf_toolkit/shared/pdf_service.dart';
 
 class MockFilePickerWrapper extends Mock implements FilePickerWrapper {}
-class MockPdfCombinerWrapper extends Mock implements PdfCombinerWrapper {}
+class MockPdfService extends Mock implements PdfService {}
 
 void main() {
   late MockFilePickerWrapper mockFilePicker;
-  late MockPdfCombinerWrapper mockPdfCombiner;
+  late MockPdfService mockPdfService;
   late ImageToPdfController controller;
 
   setUpAll(() {
@@ -21,10 +20,10 @@ void main() {
 
   setUp(() {
     mockFilePicker = MockFilePickerWrapper();
-    mockPdfCombiner = MockPdfCombinerWrapper();
+    mockPdfService = MockPdfService();
     controller = ImageToPdfController(
       filePicker: mockFilePicker,
-      pdfCombiner: mockPdfCombiner,
+      pdfService: mockPdfService,
     );
   });
 
@@ -80,10 +79,10 @@ void main() {
             allowedExtensions: ['pdf'],
           )).thenAnswer((_) async => outputPath);
 
-      when(() => mockPdfCombiner.createPDFFromMultipleImages(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
-          )).thenAnswer((_) async => outputPath);
+      when(() => mockPdfService.convertImagesToPDF(
+            any(),
+            outputPath,
+          )).thenAnswer((_) async {});
 
       await controller.convert();
 
@@ -91,9 +90,9 @@ void main() {
       expect(controller.errorMessage.value, isNull);
       expect(controller.isProcessing.value, isFalse);
 
-      verify(() => mockPdfCombiner.createPDFFromMultipleImages(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
+      verify(() => mockPdfService.convertImagesToPDF(
+            any(),
+            outputPath,
           )).called(1);
     });
   });
@@ -134,9 +133,9 @@ void main() {
             type: any(named: 'type'),
             allowedExtensions: any(named: 'allowedExtensions'),
           ));
-      verifyNever(() => mockPdfCombiner.createPDFFromMultipleImages(
-            inputs: any(named: 'inputs'),
-            outputPath: any(named: 'outputPath'),
+      verifyNever(() => mockPdfService.convertImagesToPDF(
+            any(),
+            any(),
           ));
     });
 
@@ -151,10 +150,10 @@ void main() {
             allowedExtensions: ['pdf'],
           )).thenAnswer((_) async => outputPath);
 
-      when(() => mockPdfCombiner.createPDFFromMultipleImages(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
-          )).thenThrow(PdfCombinerException('invalid image format'));
+      when(() => mockPdfService.convertImagesToPDF(
+            any(),
+            outputPath,
+          )).thenThrow(PdfServiceException('Uma ou mais imagens selecionadas parecem corrompidas ou inválidas.'));
 
       await controller.convert();
 
@@ -174,9 +173,9 @@ void main() {
             allowedExtensions: ['pdf'],
           )).thenAnswer((_) async => outputPath);
 
-      when(() => mockPdfCombiner.createPDFFromMultipleImages(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
+      when(() => mockPdfService.convertImagesToPDF(
+            any(),
+            outputPath,
           )).thenThrow(FileSystemException('Write permission denied', 'C:\\output\\result.pdf'));
 
       await controller.convert();
@@ -201,9 +200,9 @@ void main() {
       expect(controller.successMessage.value, isNull);
       expect(controller.errorMessage.value, isNull);
       expect(controller.isProcessing.value, isFalse);
-      verifyNever(() => mockPdfCombiner.createPDFFromMultipleImages(
-            inputs: any(named: 'inputs'),
-            outputPath: any(named: 'outputPath'),
+      verifyNever(() => mockPdfService.convertImagesToPDF(
+            any(),
+            any(),
           ));
     });
   });

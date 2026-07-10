@@ -1,17 +1,10 @@
 import 'dart:io';
-import 'package:pdf_combiner/exception/pdf_combiner_exception.dart';
+import 'pdf_service.dart';
 
 class AppErrors {
   static String getFriendlyMessage(Object error, {String? outputPath}) {
-    if (error is PdfCombinerException) {
-      final message = error.message;
-      if (message.contains('invalid image') || message.contains('image format')) {
-        return 'Uma ou mais imagens selecionadas parecem corrompidas ou inválidas.';
-      }
-      if (message.contains('invalid pdf') || message.contains('corrupt') || message.contains('password protected')) {
-        return 'Um ou mais arquivos PDF parecem corrompidos ou protegidos por senha.';
-      }
-      return 'Erro ao processar PDF: $message';
+    if (error is PdfServiceException) {
+      return error.toString();
     }
 
     if (error is FileSystemException) {
