@@ -2,17 +2,16 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:pdf_combiner/exception/pdf_combiner_exception.dart';
 import 'package:pdf_toolkit/features/merge_pdf/merge_pdf_controller.dart';
 import 'package:pdf_toolkit/shared/file_picker_wrapper.dart';
-import 'package:pdf_toolkit/shared/pdf_combiner_wrapper.dart';
+import 'package:pdf_toolkit/shared/pdf_service.dart';
 
 class MockFilePickerWrapper extends Mock implements FilePickerWrapper {}
-class MockPdfCombinerWrapper extends Mock implements PdfCombinerWrapper {}
+class MockPdfService extends Mock implements PdfService {}
 
 void main() {
   late MockFilePickerWrapper mockFilePicker;
-  late MockPdfCombinerWrapper mockPdfCombiner;
+  late MockPdfService mockPdfService;
   late MergePdfController controller;
 
   setUpAll(() {
@@ -21,10 +20,10 @@ void main() {
 
   setUp(() {
     mockFilePicker = MockFilePickerWrapper();
-    mockPdfCombiner = MockPdfCombinerWrapper();
+    mockPdfService = MockPdfService();
     controller = MergePdfController(
       filePicker: mockFilePicker,
-      pdfCombiner: mockPdfCombiner,
+      pdfService: mockPdfService,
     );
   });
 
@@ -77,10 +76,10 @@ void main() {
             allowedExtensions: ['pdf'],
           )).thenAnswer((_) async => outputPath);
 
-      when(() => mockPdfCombiner.mergeMultiplePDFs(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
-          )).thenAnswer((_) async => outputPath);
+      when(() => mockPdfService.mergePDFs(
+            any(),
+            outputPath,
+          )).thenAnswer((_) async {});
 
       await controller.merge();
 
@@ -88,9 +87,9 @@ void main() {
       expect(controller.errorMessage.value, isNull);
       expect(controller.isProcessing.value, isFalse);
 
-      verify(() => mockPdfCombiner.mergeMultiplePDFs(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
+      verify(() => mockPdfService.mergePDFs(
+            any(),
+            outputPath,
           )).called(1);
     });
   });
@@ -130,9 +129,9 @@ void main() {
             type: any(named: 'type'),
             allowedExtensions: any(named: 'allowedExtensions'),
           ));
-      verifyNever(() => mockPdfCombiner.mergeMultiplePDFs(
-            inputs: any(named: 'inputs'),
-            outputPath: any(named: 'outputPath'),
+      verifyNever(() => mockPdfService.mergePDFs(
+            any(),
+            any(),
           ));
     });
 
@@ -147,14 +146,14 @@ void main() {
             allowedExtensions: ['pdf'],
           )).thenAnswer((_) async => outputPath);
 
-      when(() => mockPdfCombiner.mergeMultiplePDFs(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
-          )).thenThrow(PdfCombinerException('invalid pdf format or protected'));
+      when(() => mockPdfService.mergePDFs(
+            any(),
+            outputPath,
+          )).thenThrow(PdfServiceException('O arquivo PDF está corrompido ou é inválido.'));
 
       await controller.merge();
 
-      expect(controller.errorMessage.value, contains('Um ou mais arquivos PDF parecem corrompidos ou protegidos por senha.'));
+      expect(controller.errorMessage.value, contains('O arquivo PDF está corrompido ou é inválido.'));
       expect(controller.successMessage.value, isNull);
       expect(controller.isProcessing.value, isFalse);
     });
@@ -170,9 +169,9 @@ void main() {
             allowedExtensions: ['pdf'],
           )).thenAnswer((_) async => outputPath);
 
-      when(() => mockPdfCombiner.mergeMultiplePDFs(
-            inputs: any(named: 'inputs'),
-            outputPath: outputPath,
+      when(() => mockPdfService.mergePDFs(
+            any(),
+            outputPath,
           )).thenThrow(FileSystemException('Write permission denied', 'C:\\output\\merged.pdf'));
 
       await controller.merge();
@@ -197,9 +196,9 @@ void main() {
       expect(controller.successMessage.value, isNull);
       expect(controller.errorMessage.value, isNull);
       expect(controller.isProcessing.value, isFalse);
-      verifyNever(() => mockPdfCombiner.mergeMultiplePDFs(
-            inputs: any(named: 'inputs'),
-            outputPath: any(named: 'outputPath'),
+      verifyNever(() => mockPdfService.mergePDFs(
+            any(),
+            any(),
           ));
     });
   });
