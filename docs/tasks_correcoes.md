@@ -37,7 +37,7 @@
   - Remover import de `pdf_combiner_wrapper`.
   - Adicionar import de `pdf_service.dart`.
   - Substituir chamada `_pdfCombiner.createPDFFromMultipleImages()` por `PdfService.convertImagesToPDF()`.
-- [ ] 3.2 Atualizar [merge_pdf_controller.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/features/merge_pdf/merge_pdf_controller.dart):
+- [x] 3.2 Atualizar [merge_pdf_controller.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/features/merge_pdf/merge_pdf_controller.dart):
   - Remover import de `pdf_combiner_wrapper`.
   - Adicionar import de `pdf_service.dart`.
   - Substituir chamada `_pdfCombiner.mergeMultiplePDFs()` por `PdfService.mergePDFs()`.

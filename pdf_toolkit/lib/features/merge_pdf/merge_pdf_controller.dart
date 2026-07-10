@@ -4,17 +4,17 @@ import 'package:pdf_combiner/models/merge_input.dart';
 
 import '../../shared/app_errors.dart';
 import '../../shared/file_picker_wrapper.dart';
-import '../../shared/pdf_combiner_wrapper.dart';
+import '../../shared/pdf_service.dart';
 
 class MergePdfController {
   final FilePickerWrapper _filePicker;
-  final PdfCombinerWrapper _pdfCombiner;
+  final PdfService _pdfService;
 
   MergePdfController({
     FilePickerWrapper filePicker = const FilePickerWrapper(),
-    PdfCombinerWrapper pdfCombiner = const PdfCombinerWrapper(),
+    PdfService pdfService = const PdfService(),
   })  : _filePicker = filePicker,
-        _pdfCombiner = pdfCombiner;
+        _pdfService = pdfService;
 
   final ValueNotifier<List<String>> pdfs = ValueNotifier<List<String>>([]);
   final ValueNotifier<bool> isProcessing = ValueNotifier<bool>(false);
@@ -97,11 +97,9 @@ class MergePdfController {
 
       isProcessing.value = true;
 
-      final inputs = pdfs.value.map((p) => MergeInput.path(p)).toList();
-
-      await _pdfCombiner.mergeMultiplePDFs(
-        inputs: inputs,
-        outputPath: outputPath,
+      await _pdfService.mergePDFs(
+        pdfs.value,
+        outputPath,
       );
 
       successMessage.value = outputPath;
