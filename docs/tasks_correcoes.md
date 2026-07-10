@@ -41,7 +41,7 @@
   - Remover import de `pdf_combiner_wrapper`.
   - Adicionar import de `pdf_service.dart`.
   - Substituir chamada `_pdfCombiner.mergeMultiplePDFs()` por `PdfService.mergePDFs()`.
-- [ ] 3.3 Atualizar o arquivo [app_errors.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/app_errors.dart) se necessário para cobrir novas exceções do `pdf_service`.
+- [x] 3.3 Atualizar o arquivo [app_errors.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/shared/app_errors.dart) se necessário para cobrir novas exceções do `pdf_service`.
 
 ## Fase 4 — Remoção de Código Legado (chore)
 
