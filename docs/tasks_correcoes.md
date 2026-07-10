@@ -58,7 +58,7 @@
 
 ## Fase 6 — Build e Distribuição (build)
 
-- [ ] 6.1 Executar `flutter build windows` para garantir que o executável compila sem erros.
+- [x] 6.1 Executar `flutter build windows` para garantir que o executável compila sem erros.
 - [ ] 6.2 Testar o executável compilado no Windows.
 - [ ] 6.3 Executar build para macOS e Linux (se aplicável) e validar.
 
