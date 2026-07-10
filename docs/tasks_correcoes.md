@@ -65,7 +65,7 @@
 ## Fase 7 — CI/CD e Automação (ci)
 
 - [ ] 7.1 Validar que o workflow de CI/CD ([.github/workflows/ci.yml](file:///C:/dev/projects/PDF_Toolkit/.github/workflows/ci.yml)) passa sem erros.
-- [ ] 7.2 Corrigir job `dependency_check` para rodar `dart pub audit` (removendo silenciamento).
+- [x] 7.2 Corrigir job `dependency_check` para rodar `dart pub audit` (removendo silenciamento).
 - [ ] 7.3 Adicionar variável `APPIMAGE_EXTRACT_AND_RUN: 1` para Linux no CI/CD.
 
 ## Fase 8 — Documentação Final (docs)

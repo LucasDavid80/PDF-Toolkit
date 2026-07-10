@@ -66,8 +66,8 @@ jobs:
         with:
           flutter-version: 'stable'
           cache: true
-      - name: Run flutter pub outdated
-        run: flutter pub outdated || true
+      - name: Run dart pub audit
+        run: dart pub audit
 
   integration_test:
     name: Integration Tests (${{ matrix.os }})
