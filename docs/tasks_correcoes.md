@@ -33,7 +33,7 @@
 
 ## Fase 3 — Refatoração dos Controllers (feat/fix)
 
-- [ ] 3.1 Atualizar [image_to_pdf_controller.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/features/image_to_pdf/image_to_pdf_controller.dart):
+- [x] 3.1 Atualizar [image_to_pdf_controller.dart](file:///C:/dev/projects/PDF_Toolkit/pdf_toolkit/lib/features/image_to_pdf/image_to_pdf_controller.dart):
   - Remover import de `pdf_combiner_wrapper`.
   - Adicionar import de `pdf_service.dart`.
   - Substituir chamada `_pdfCombiner.createPDFFromMultipleImages()` por `PdfService.convertImagesToPDF()`.

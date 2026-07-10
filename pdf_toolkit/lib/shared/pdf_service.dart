@@ -25,10 +25,12 @@ class PdfServiceException implements Exception {
 
 /// Service class to handle PDF conversions and merges.
 class PdfService {
+  const PdfService();
+
   /// Converts a list of image file paths into a single PDF document.
   ///
   /// Each page's dimensions are adjusted to the corresponding image's size to prevent distortion.
-  static Future<void> convertImagesToPDF(List<String> imagePaths, String outputPath) async {
+  Future<void> convertImagesToPDF(List<String> imagePaths, String outputPath) async {
     if (imagePaths.isEmpty) {
       throw ArgumentError('A lista de imagens não pode estar vazia.');
     }
@@ -114,7 +116,7 @@ class PdfService {
   /// Merges multiple PDF files into a single PDF document.
   ///
   /// Utilizes the [pdf_manipulator] package which wraps a Rust engine to execute native merge.
-  static Future<void> mergePDFs(List<String> pdfPaths, String outputPath) async {
+  Future<void> mergePDFs(List<String> pdfPaths, String outputPath) async {
     if (pdfPaths.length < 2) {
       throw ArgumentError('Selecione ao menos 2 arquivos PDF para unir.');
     }
