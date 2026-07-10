@@ -13,6 +13,15 @@ Repositório: https://github.com/LucasDavid80/PDF-Toolkit.git
 - [`docs/tasks.md`](docs/tasks.md) — lista de tarefas
 - [`AGENTS.md`](AGENTS.md) — regras de comportamento para agentes de IA que trabalham neste repositório (fluxo de git, convenções de commit, etc.)
 
+## Arquitetura e Decisões Técnicas (Solução 3)
+
+Originalmente, o projeto dependia do pacote `pdf_combiner`. No entanto, devido a restrições e bugs de CMake/compilação nativa de C++ no ecossistema Windows, a dependência foi substituída pela **Solução 3** para maior estabilidade:
+
+1. **Conversão de Imagens → PDF**: Implementada utilizando `pdf` (geração de documentos) + `image` (decodificação de formatos de imagem). Ambos são escritos em **Dart puro**, o que elimina dependências nativas e simplifica a compilação cruzada em qualquer plataforma hospedeira.
+2. **União de PDFs**: Implementada através de `pdf_manipulator`. Este pacote envolve um motor escrito em Rust de alta performance. Durante a compilação, o plugin baixa de forma transparente o binário pré-compilado nativo apropriado para a plataforma (como a `pdf_oxide.dll` no Windows), garantindo que o build funcione sem a necessidade de ferramentas de compilação locais do desenvolvedor ou da CI.
+
+Essa stack estável assegura compatibilidade offline-first, performance nativa e builds limpos em Windows, macOS e Linux.
+
 ## Rodando localmente
 
 ```bash
